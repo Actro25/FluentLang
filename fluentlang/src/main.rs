@@ -1,5 +1,6 @@
-pub mod cli_attributes;
+mod console;
 
 fn main() {
-    println!("Hello, world!");
+    let cli = console::cli::Cli::new();
+    cli.process_command();
 }
