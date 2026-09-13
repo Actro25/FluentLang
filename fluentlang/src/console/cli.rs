@@ -7,14 +7,14 @@ pub struct Cli {
 impl Cli{
     pub fn new() -> Self {
         let cli_data = Input::parse();
-        return Self{
+        Self{
             cli_data,
         }
     }
 
     pub fn process_command(&self){
         if let Some(value) = self.cli_data.sentence.as_deref() {
-            todo!("Send data to API service.");
+            println!("The API currently unavailable.");
         }
 
         match &self.cli_data.command {
@@ -30,7 +30,5 @@ impl Cli{
                 }
             }
         }
-
-        dbg!(&self.cli_data);
     }
 }
