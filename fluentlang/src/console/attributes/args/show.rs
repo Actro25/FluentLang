@@ -1,10 +1,14 @@
 use clap::Args;
+use crate::console::json::Json;
 
 #[derive(Args, Debug)]
 pub struct ShowArgs{}
 
 impl ShowArgs {
     pub fn show(&self) {
-        todo!("Implement showing data.")
+        let json = Json::new();
+        let args = json.get_config_data();
+        print!("Public key: {}", args.public);
+        print!("Private key: {}", args.private);
     }
 }
