@@ -1,7 +1,17 @@
 use crate::console::attributes::args::set::SetArg;
-use std::fs::{File, OpenOptions};
-use std::io::{BufReader, BufWriter, ErrorKind};
-use std::path::{Path, PathBuf};
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::{BufReader, BufWriter};
+use std::path::PathBuf;
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct InputJson {
+    pub keys: Option<SetArg>,
+}
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct OutputJson {
+    pub keys: SetArg,
+}
 
 pub struct Json {
     path: PathBuf,
@@ -13,56 +23,60 @@ impl Json {
         Self { path }
     }
 
-    pub fn set_config_data(&self, set_data: &SetArg) {
-        let file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(&self.path);
+    pub fn set_config_data(&self, set_data: &InputJson) -> Result<(), String> {
+        if !self.path.exists() {
+            match self.create_config() {
+                Ok(_) => {}
+                Err(err) => return Err(err),
+            };
+        }
 
-        match file {
+        let mut config_data = if let Ok(data) = self.get_config_data() {
+            data
+        } else {
+            OutputJson::default()
+        };
+
+        if let Some(keys) = &set_data.keys {
+            config_data.keys = keys.clone();
+        }
+
+        match File::create(&self.path) {
             Ok(file) => {
                 let writer = BufWriter::new(file);
-                match serde_json::to_writer_pretty(writer, &set_data) {
-                    Err(err) => println!("Error serializing config: {}", err),
-                    _ => {}
-                };
+
+                match serde_json::to_writer_pretty(writer, &config_data) {
+                    Err(err) => Err(err.to_string()),
+                    _ => Ok(()),
+                }
             }
-            Err(err) => match err.kind() {
-                ErrorKind::PermissionDenied => {
-                    eprintln!("There isn't enough permissions to write. Please try again.");
-                }
-                ErrorKind::NotFound => {
-                    eprintln!("Path isn't found.");
-                }
-                _ => {
-                    eprintln!("There is another IO error: {err}");
-                }
-            },
+            Err(err) => Err(err.to_string()),
         }
     }
 
-    //There should return Result
-    pub fn get_config_data(&self) -> SetArg {
-        let mut return_args = SetArg::new("".to_string(), "".to_string());
+    pub fn get_config_data(&self) -> Result<OutputJson, String> {
         if !self.path.exists() {
-            println!("Config file does not exist.");
-            return return_args;
+            return Err("Config file does not exist.".to_string());
         }
 
         match File::open(&self.path) {
             Ok(file) => {
                 let reader = BufReader::new(file);
 
-                match serde_json::from_reader::<_, SetArg>(reader) {
-                    Ok(args) => return_args = args,
-                    Err(err) => println!("Failed to parse JSON: {err}"),
-                };
+                match serde_json::from_reader::<_, OutputJson>(reader) {
+                    Ok(args) => Ok(args),
+                    Err(err) => Err(format!("Failed to parse JSON: {}", err)),
+                }
             }
-            Err(err) => println!("Error opening config file: {}", err),
+            Err(err) => Err(format!("Error opening config file: {}", err)),
         }
+    }
 
-        return_args
+    fn create_config(&self) -> Result<(), String> {
+        match File::create(&self.path) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err.to_string()),
+        }
     }
 
     fn get_path(config: &str) -> PathBuf {

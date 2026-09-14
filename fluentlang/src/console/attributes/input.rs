@@ -15,12 +15,20 @@ pub struct Input {
 pub enum MainCommands {
     Config {
         #[command(subcommand)]
-        command: ConfigSubcommands,
+        command: ConfigCommands,
     },
 }
 
 #[derive(Subcommand, Debug)]
-pub enum ConfigSubcommands {
-    Set(#[command(flatten)] SetArg),
+pub enum ConfigCommands {
+    Set {
+        #[command(subcommand)]
+        command: ConfigSubcommands,
+    },
     Show(#[command(flatten)] ShowArgs),
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ConfigSubcommands {
+    Keys(#[command(flatten)] SetArg),
 }

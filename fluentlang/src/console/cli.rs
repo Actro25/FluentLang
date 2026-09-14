@@ -1,26 +1,40 @@
-use crate::console::attributes::input::{ConfigSubcommands, Input, MainCommands};
+use crate::console::attributes::input::{ConfigCommands, ConfigSubcommands, Input, MainCommands};
+use crate::console::json::{InputJson, Json};
 use clap::Parser;
+
 pub struct Cli {
     cli_data: Input,
+    json: Json,
 }
 
 impl Cli {
     pub fn new() -> Self {
         let cli_data = Input::parse();
-        Self { cli_data }
+        let json = Json::new();
+        Self { cli_data, json }
     }
 
     pub fn process_command(&self) {
-        if let Some(value) = self.cli_data.sentence.as_deref() {
+        if let Some(_) = self.cli_data.sentence.as_deref() {
             println!("The API currently unavailable.");
         }
 
         match &self.cli_data.command {
-            None => println!("No command specified."), //There should be adequate output like err or sth else.
+            None => println!("No command specified."),
             Some(main_command) => match main_command {
                 MainCommands::Config { command, .. } => match command {
-                    ConfigSubcommands::Set(set_value) => set_value.set(),
-                    ConfigSubcommands::Show(show_value) => show_value.show(),
+                    ConfigCommands::Set { command, .. } => match command {
+                        ConfigSubcommands::Keys(set_value) => {
+                            let input = InputJson {
+                                keys: Some(set_value.clone()),
+                            };
+                            match self.json.set_config_data(&input) {
+                                Ok(_) => {}
+                                Err(err) => println!("There is an error: {}", err),
+                            };
+                        }
+                    },
+                    ConfigCommands::Show(show_value) => show_value.show(),
                 },
             },
         }
