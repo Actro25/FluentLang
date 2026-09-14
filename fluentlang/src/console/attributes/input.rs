@@ -1,6 +1,6 @@
-use clap::{Parser, Subcommand};
 use crate::console::attributes::args::set::SetArg;
 use crate::console::attributes::args::show::ShowArgs;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]

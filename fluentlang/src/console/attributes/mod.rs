@@ -1,2 +1,2 @@
-pub mod input;
-pub mod args;
+pub mod args;pub mod input;
+
