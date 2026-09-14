@@ -1,19 +1,17 @@
-use crate::console::json::Json;
 use clap::Args;
 use serde::{Deserialize, Serialize};
 
-#[derive(Args, Debug, Serialize, Deserialize)]
+#[derive(Args, Debug, Serialize, Deserialize, Default)]
 pub struct SetArg {
     pub public: String,
     pub private: String,
 }
 
-impl SetArg {
-    pub fn new(public: String, private: String) -> Self {
-        Self { public, private }
-    }
-    pub fn set(&self) {
-        let json = Json::new();
-        json.set_config_data(&self);
+impl Clone for SetArg {
+    fn clone(&self) -> Self {
+        Self {
+            private: self.private.clone(),
+            public: self.public.clone(),
+        }
     }
 }

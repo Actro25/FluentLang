@@ -7,8 +7,14 @@ pub struct ShowArgs {}
 impl ShowArgs {
     pub fn show(&self) {
         let json = Json::new();
-        let args = json.get_config_data();
-        print!("Public key: {}", args.public);
-        print!("Private key: {}", args.private);
+        let output = json.get_config_data();
+
+        match output {
+            Ok(output) => {
+                println!("Public key: {}", output.keys.public);
+                println!("Private key: {}", output.keys.private);
+            }
+            Err(err) => println!("There is an error: {}", err),
+        }
     }
 }
