@@ -1,8 +1,8 @@
-use clap::Args;
 use crate::console::json::Json;
+use clap::Args;
 
 #[derive(Args, Debug)]
-pub struct ShowArgs{}
+pub struct ShowArgs {}
 
 impl ShowArgs {
     pub fn show(&self) {

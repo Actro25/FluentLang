@@ -1,21 +1,19 @@
+use crate::console::attributes::args::set::SetArg;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, BufWriter, ErrorKind};
 use std::path::{Path, PathBuf};
-use crate::console::attributes::args::set::SetArg;
 
 pub struct Json {
-    path: PathBuf
+    path: PathBuf,
 }
 
 impl Json {
     pub fn new() -> Self {
         let path = Self::get_path("config.json");
-        Self {
-            path,
-        }
+        Self { path }
     }
 
-    pub fn set_config_data(&self, set_data: &SetArg){
+    pub fn set_config_data(&self, set_data: &SetArg) {
         let file = OpenOptions::new()
             .write(true)
             .create(true)
@@ -46,7 +44,7 @@ impl Json {
 
     //There should return Result
     pub fn get_config_data(&self) -> SetArg {
-        let mut return_args = SetArg::new("".to_string(),"".to_string());
+        let mut return_args = SetArg::new("".to_string(), "".to_string());
         if !self.path.exists() {
             println!("Config file does not exist.");
             return return_args;
@@ -58,7 +56,7 @@ impl Json {
 
                 match serde_json::from_reader::<_, SetArg>(reader) {
                     Ok(args) => return_args = args,
-                    Err(err) => println!("Failed to parse JSON: {err}")
+                    Err(err) => println!("Failed to parse JSON: {err}"),
                 };
             }
             Err(err) => println!("Error opening config file: {}", err),
