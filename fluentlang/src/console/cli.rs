@@ -1,6 +1,5 @@
-use crate::console::attributes::input::{ConfigCommands, MainCommands, SetArguments};
 use crate::console::config_parsing::{InputJson, get_config_data, get_path, set_config_data};
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about)]
@@ -8,6 +7,29 @@ pub struct Cli {
     pub sentence: Option<String>,
     #[command(subcommand)]
     pub command: Option<MainCommands>,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum MainCommands {
+    Config {
+        #[command(subcommand)]
+        command: ConfigCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum ConfigCommands {
+    Set {
+        #[command(subcommand)]
+        command: SetArguments,
+    },
+    Get,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SetArguments {
+    Private { key_value: String },
+    Public { key_value: String },
 }
 
 impl Cli {
