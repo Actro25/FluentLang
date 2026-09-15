@@ -1,9 +1,9 @@
+use crate::console::error::AppErrors;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
-use crate::console::cli::AppErrors;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct InputJson {
