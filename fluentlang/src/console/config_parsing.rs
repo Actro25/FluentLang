@@ -1,17 +1,18 @@
-use std::fs;
-use crate::console::attributes::args::set::SetArg;
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct InputJson {
-    pub keys: Option<SetArg>,
+    pub public: Option<String>,
+    pub private: Option<String>,
 }
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct OutputJson {
-    pub keys: SetArg,
+    pub public: String,
+    pub private: String,
 }
 
 pub fn set_config_data(path: &PathBuf, set_data: &InputJson) -> Result<(), String> {
@@ -21,8 +22,11 @@ pub fn set_config_data(path: &PathBuf, set_data: &InputJson) -> Result<(), Strin
         OutputJson::default()
     };
 
-    if let Some(keys) = &set_data.keys {
-        config_data.keys = keys.clone();
+    if let Some(key) = &set_data.public {
+        config_data.public = key.clone();
+    }
+    if let Some(key) = &set_data.private {
+        config_data.private = key.clone();
     }
 
     if let Some(parent) = path.parent() {
@@ -69,8 +73,7 @@ pub fn get_path(config_name: &str) -> Result<PathBuf, String> {
         path.push("FluentLang");
         path.push(config_name);
         Ok(path)
-    }
-    else {
+    } else {
         Err("Can't find path for config folder.".into())
     }
 }

@@ -1,4 +1,3 @@
-use crate::console::attributes::args::set::SetArg;
 use clap::Subcommand;
 
 #[derive(Subcommand, Debug)]
@@ -13,12 +12,13 @@ pub enum MainCommands {
 pub enum ConfigCommands {
     Set {
         #[command(subcommand)]
-        command: ConfigSubcommands,
+        command: SetArguments,
     },
-    Show,
+    Get,
 }
 
 #[derive(Subcommand, Debug)]
-pub enum ConfigSubcommands {
-    Keys(#[command(flatten)] SetArg),
+pub enum SetArguments {
+    Private { key_value: String },
+    Public { key_value: String },
 }
