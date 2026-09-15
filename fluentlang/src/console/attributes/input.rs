@@ -1,15 +1,5 @@
 use crate::console::attributes::args::set::SetArg;
-use crate::console::attributes::args::show::ShowArgs;
-use clap::{Parser, Subcommand};
-
-#[derive(Parser, Debug)]
-#[command(author, version, about)]
-pub struct Input {
-    pub sentence: Option<String>,
-
-    #[command(subcommand)]
-    pub command: Option<MainCommands>,
-}
+use clap::Subcommand;
 
 #[derive(Subcommand, Debug)]
 pub enum MainCommands {
@@ -25,7 +15,7 @@ pub enum ConfigCommands {
         #[command(subcommand)]
         command: ConfigSubcommands,
     },
-    Show(#[command(flatten)] ShowArgs),
+    Show,
 }
 
 #[derive(Subcommand, Debug)]
