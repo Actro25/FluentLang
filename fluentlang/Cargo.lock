@@ -126,7 +126,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fluentlang_cli"
+name = "fluentlang"
 version = "0.1.0"
 dependencies = [
  "clap",

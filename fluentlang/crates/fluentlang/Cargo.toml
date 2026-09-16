@@ -1,5 +1,5 @@
 [package]
-name = "fluentlang_cli"
+name = "fluentlang"
 authors = ["Actro25"]
 description = "Nothing"
 version = "0.1.0"
