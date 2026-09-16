@@ -17,12 +17,10 @@ pub struct OutputJson {
 }
 
 pub fn set_config_data(path: &PathBuf, set_data: &InputJson) -> Result<(), AppErrors> {
-    let mut config_data = if let Ok(data) = get_config_data(path) {
-        data
-    } else {
-        OutputJson::default()
-    };
+    //If get_config_data return Ok than return the data that was returned else return error.
+    let mut config_data = get_config_data(path)?;
 
+    //If the parameter from user was entered then clon it in setting struct.
     if let Some(key) = &set_data.public {
         config_data.public = key.clone();
     }
@@ -30,6 +28,7 @@ pub fn set_config_data(path: &PathBuf, set_data: &InputJson) -> Result<(), AppEr
         config_data.private = key.clone();
     }
 
+    //If the config dir isn't exist then we create it
     if let Some(parent) = path.parent() {
         match fs::create_dir_all(parent) {
             Ok(_) => {}
@@ -37,8 +36,10 @@ pub fn set_config_data(path: &PathBuf, set_data: &InputJson) -> Result<(), AppEr
         }
     }
 
+    //There we create file if it doesn't exist.
     match File::create(path) {
         Ok(file) => {
+            //Creating writer, because to_writer_pretty is supposed to have writer as parameter.
             let writer = BufWriter::new(file);
 
             match serde_json::to_writer_pretty(writer, &config_data) {
@@ -69,7 +70,9 @@ pub fn get_config_data(path: &PathBuf) -> Result<OutputJson, AppErrors> {
 }
 
 pub fn get_path(config_name: &str) -> Result<PathBuf, AppErrors> {
+    //Getting path from dits library.
     let path = dirs::config_dir();
+    //If path exists then return path as FluentLang/config_name then return error.
     if let Some(mut path) = path {
         path.push("FluentLang");
         path.push(config_name);
