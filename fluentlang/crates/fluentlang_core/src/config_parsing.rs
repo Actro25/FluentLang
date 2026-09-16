@@ -1,15 +1,16 @@
+use crate::error::AppErrors;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
-use crate::error::AppErrors;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct InputJson {
     pub public: Option<String>,
     pub private: Option<String>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct OutputJson {
     pub public: String,

@@ -1,5 +1,6 @@
 use clap::Parser;
 use fluentlang_core::Cli;
+
 fn main() {
     //Creating base parsing that clap suggests.
     let cli = Cli::parse();

@@ -1,8 +1,8 @@
-pub mod error;
 pub mod config_parsing;
-use clap::{Parser, Subcommand};
-use crate::config_parsing::{get_path, InputJson, set_config_data, get_config_data};
+pub mod error;
+use crate::config_parsing::{InputJson, get_config_data, get_path, set_config_data};
 use crate::error::AppErrors;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -25,7 +25,6 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum MainCommands {
-    ///
     #[command(
         version,
         about = "A config attribute to setting up the config file",
@@ -43,7 +42,6 @@ fluentlang config set private "YOUR-PRIVATE-KEY"
 }
 
 #[derive(Subcommand, Debug)]
-
 pub enum ConfigCommands {
     #[command(
         version,
@@ -74,7 +72,6 @@ This is subcommand for config. It'll show config data."#
 }
 
 #[derive(Subcommand, Debug)]
-
 pub enum SetArguments {
     #[command(
         version,
@@ -87,6 +84,7 @@ fluentlang config set private "YOUR-PRIVATE-KEY"
 This is a config parameters that contains a value."#
     )]
     Private { key_value: String },
+
     #[command(
         version,
         about = "A public key parameter",
