@@ -1,6 +1,8 @@
-use crate::console::config_parsing::{InputJson, get_config_data, get_path, set_config_data};
-use crate::console::error::AppErrors;
+pub mod error;
+pub mod config_parsing;
 use clap::{Parser, Subcommand};
+use crate::config_parsing::{get_path, InputJson, set_config_data, get_config_data};
+use crate::error::AppErrors;
 
 //This is base struct for cli.
 //For example:

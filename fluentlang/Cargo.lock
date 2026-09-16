@@ -3,16 +3,6 @@
 version = 4
 
 [[package]]
-name = "FluentLang"
-version = "0.1.0"
-dependencies = [
- "clap",
- "dirs",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -133,6 +123,24 @@ dependencies = [
  "option-ext",
  "redox_users",
  "windows-sys",
+]
+
+[[package]]
+name = "fluentlang_cli"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "fluentlang_core",
+]
+
+[[package]]
+name = "fluentlang_core"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "dirs",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
