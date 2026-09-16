@@ -4,55 +4,99 @@ use clap::{Parser, Subcommand};
 use crate::config_parsing::{get_path, InputJson, set_config_data, get_config_data};
 use crate::error::AppErrors;
 
-//This is base struct for cli.
-//For example:
-//fluentlang "This is my first sentence!"
-//     ^                  ^
-//This is key work        |
-//                 This is an Option<String>
 #[derive(Parser, Debug)]
-#[command(author, version, about)]
+#[command(
+    version,
+    long_about = r#"
+This is base struct for cli.
+For example:
+fluentlang "This is my first sentence!"
+    ^                  ^
+This is key word       |
+           This is an Option<String>"#
+)]
 pub struct Cli {
+    /// A sentence that you want to understand
     pub sentence: Option<String>,
+
     #[command(subcommand)]
     pub command: Option<MainCommands>,
 }
 
-//This is a subcommand struct for the base struct.
-//For example: 
-//fluentlang config set private "YOUR-PRIVATE-KEY"
-//              ^
-//          This is subcommand.
 #[derive(Subcommand, Debug)]
 pub enum MainCommands {
+    ///
+    #[command(
+        version,
+        about = "A config attribute to setting up the config file",
+        long_about = r#"
+This is a subcommand struct for the base struct.
+For example:
+fluentlang config set private "YOUR-PRIVATE-KEY"
+                   ^
+           This is subcommand."#
+    )]
     Config {
         #[command(subcommand)]
         command: ConfigCommands,
     },
 }
 
-//This is also subcommand struct but for MainCommands struct
-//For example:
-//fluentlang config set private "YOUR-PRIVATE-KEY"
-//                   ^
-//This is subcomand for config. There's also get command but it only for showing all config data.
 #[derive(Subcommand, Debug)]
+
 pub enum ConfigCommands {
+    #[command(
+        version,
+        about = "An attribute that setting up the config file by values",
+        long_about = r#"
+This is also subcommand struct but for MainCommands struct
+For example:
+fluentlang config set private "YOUR-PRIVATE-KEY"
+                  ^
+This is subcommand for config. This will help you to set data by parameters."#
+    )]
     Set {
         #[command(subcommand)]
         command: SetArguments,
     },
+
+    #[command(
+        version,
+        about = "An attribute that gets and shows all the config data",
+        long_about = r#"
+This is also subcommand struct but for MainCommands struct
+For example:
+fluentlang config get
+                  ^
+This is subcommand for config. It'll show config data."#
+    )]
     Get,
 }
 
-//This is arguments struct for config data that is also subcommand but.
-//For example:
-//fluentlang config set private "YOUR-PRIVATE-KEY"
-//                         ^
-//This is a config parameters that can contain a value.
 #[derive(Subcommand, Debug)]
+
 pub enum SetArguments {
+    #[command(
+        version,
+        about = "A private key parameter",
+        long_about = r#"
+This is arguments struct for config data that is also subcommand.
+For example:
+fluentlang config set private "YOUR-PRIVATE-KEY"
+                        ^
+This is a config parameters that contains a value."#
+    )]
     Private { key_value: String },
+    #[command(
+        version,
+        about = "A public key parameter",
+        long_about = r#"
+This is arguments struct for config data that is also subcommand.
+For example:
+fluentlang config set public "YOUR-PRIVATE-KEY"
+                        ^
+This is a config parameters that contains a value."#
+    )]
     Public { key_value: String },
 }
 
