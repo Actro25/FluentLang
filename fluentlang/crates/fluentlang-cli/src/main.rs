@@ -1,5 +1,6 @@
+pub mod cli;
+use crate::cli::Cli;
 use clap::Parser;
-use fluentlang_core::Cli;
 
 fn main() {
     //Creating base parsing that clap suggests.
