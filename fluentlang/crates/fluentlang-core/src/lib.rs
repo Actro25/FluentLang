@@ -1,11 +1,14 @@
 pub mod config_parsing;
 pub mod error;
-use crate::config_parsing::{InputJson, get_config_data, get_path, set_config_data};
+use crate::config_parsing::{InputData, get_config_data, get_path, set_config_data};
 use crate::error::AppErrors;
 use clap::{Parser, Subcommand};
 
+const CONFIG_NAME: &str = "config.json";
+
 #[derive(Parser, Debug)]
 #[command(
+    name = "fluentlang",
     version,
     long_about = r#"
 This is base struct for cli.
@@ -110,17 +113,15 @@ impl Cli {
                 MainCommands::Config { command, .. } => match command {
                     ConfigCommands::Set { command, .. } => match command {
                         SetArguments::Private { key_value, .. } => {
-                            //Creating input data for json setting
-                            let mut input = InputJson::default();
+                            //Creating input data for the JSON setting
                             //Input data that I want to save in config file
-                            input.private = Some(key_value.clone());
+                            let input = InputData::Private(key_value);
                             //Call set function with path where we want to save config data.
-                            set_config_data(&get_path("config.json")?, &input)?;
+                            set_config_data(&get_path(CONFIG_NAME)?, &input)?;
                         }
                         SetArguments::Public { key_value, .. } => {
-                            let mut input = InputJson::default();
-                            input.public = Some(key_value.clone());
-                            set_config_data(&get_path("config.json")?, &input)?;
+                            let input = InputData::Public(key_value);
+                            set_config_data(&get_path(CONFIG_NAME)?, &input)?;
                         }
                     },
                     //It shows in console all config data.
@@ -128,7 +129,7 @@ impl Cli {
                 },
             }
         } else {
-            println!("No command specified.")
+            println!("Please user --help or -h to learn more about commands.")
         }
 
         Ok(())
@@ -137,7 +138,7 @@ impl Cli {
 
 pub fn show_config_data() -> Result<(), AppErrors> {
     //Getting config data to show
-    let output = get_config_data(&get_path("config.json")?)?;
+    let output = get_config_data(&get_path(CONFIG_NAME)?)?;
 
     println!("Public key: {}", output.public);
     println!("Private key: {}", output.private);

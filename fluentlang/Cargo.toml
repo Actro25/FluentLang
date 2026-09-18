@@ -2,6 +2,12 @@
 resolver = "3"
 
 members = [
-    "crates/fluentlang",
-    "crates/fluentlang_core"
+    "crates/fluentlang-cli",
+    "crates/fluentlang-core"
 ]
+
+[workspace.dependencies]
+clap = {version = "4.6.6", features = ["derive"]}
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+dirs = "7.0.0"
