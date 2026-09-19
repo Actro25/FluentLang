@@ -16,30 +16,37 @@ fluentlang "This is my first sentence!"
 This is key word       |
            This is a sentence that you want to understand"#
 )]
-pub struct Cli {
-    /// A sentence that you want to understand
-    pub sentence: Option<String>,
-
-    #[command(subcommand)]
-    pub command: Option<MainCommands>,
-}
-
-#[derive(Subcommand, Debug)]
-pub enum MainCommands {
+pub enum Cli {
     #[command(
         version,
-        about = "A config attribute to setting up the config file",
+        about = "An attribute that returns explained sentence",
         long_about = r#"
-This is a subcommand struct for the base struct.
+This is subcommand for key work "fluentlang"
 For example:
-fluentlang config set private "YOUR-PRIVATE-KEY"
-                   ^
-           This is subcommand."#
+fluentlang sentence "This is my first sentence!"
+               ^        ^
+This is subcommand      |
+           This is a sentence that you want to understand"#
     )]
-    Config {
+    Sentence {
+        #[arg(value_name = "SENTENCE")]
+        sentence: String,
+    },
+    #[command(
+        version,
+        about = "An attribute that helps to set up the config file",
+        long_about = r#"
+This is subcommand for key work "fluentlang"
+For example:
+fluentlang config set public "PUBLIC-KEY"
+               ^   ^
+This is subcommand |
+           This is also a subcommand but for "config""#
+    )]
+    Config{
         #[command(subcommand)]
         command: ConfigCommands,
-    },
+    }
 }
 
 #[derive(Subcommand, Debug)]
@@ -102,33 +109,26 @@ This is a config parameters that contains a value."#
 impl Cli {
     pub fn process_command(&self) -> Result<(), AppErrors> {
         //If the firs argument isn't a sentence then return CurrentlyUnavailable.
-        if let Some(_) = self.sentence.as_ref() {
-            return Err(AppErrors::CurrentlyUnavailable);
-        }
-
-        if let Some(main_command) = &self.command {
-            match main_command {
-                MainCommands::Config { command, .. } => match command {
-                    ConfigCommands::Set { command, .. } => match command {
-                        SetArguments::Private { key_value, .. } => {
-                            //Creating input data for the JSON setting
-                            //Input data that I want to save in config file
-                            let input = InputData::Private(key_value);
-                            //Call set function with path where we want to save config data.
-                            set_config_data(&get_path(CONFIG_NAME)?, &input)?;
-                        }
-                        SetArguments::Public { key_value, .. } => {
-                            let input = InputData::Public(key_value);
-                            set_config_data(&get_path(CONFIG_NAME)?, &input)?;
-                        }
-                    },
-                    //It shows in console all config data.
-                    ConfigCommands::Get => show_config_data()?,
+        match &self {
+            Cli::Sentence { .. } => return Err(AppErrors::CurrentlyUnavailable),
+            Cli::Config { command, .. } => match command {
+                ConfigCommands::Set { command, .. } => match command {
+                    SetArguments::Private { key_value, .. } => {
+                        //Creating input data for the JSON setting
+                        //Input data that I want to save in config file
+                        let input = InputData::Private(key_value);
+                        //Call set function with path where we want to save config data.
+                        set_config_data(&get_path(CONFIG_NAME)?, &input)?;
+                    }
+                    SetArguments::Public { key_value, .. } => {
+                        let input = InputData::Public(key_value);
+                        set_config_data(&get_path(CONFIG_NAME)?, &input)?;
+                    }
                 },
+                //It shows in console all config data.
+                ConfigCommands::Get => show_config_data()?,
             }
-        } else {
-            println!("Please user --help or -h to learn more about commands.")
-        }
+        };
 
         Ok(())
     }
