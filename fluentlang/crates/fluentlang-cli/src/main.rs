@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod config_parsing;
 use crate::cli::Cli;
 use clap::Parser;
 

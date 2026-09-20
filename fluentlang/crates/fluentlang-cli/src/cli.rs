@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
-use fluentlang_core::config_parsing::{get_config_data, get_path, set_config_data, InputData};
 use fluentlang_core::error::AppErrors;
+use crate::config_parsing::{get_path, set_config_data, InputData, get_config_data};
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -107,9 +107,9 @@ This is a config parameters that contains a value."#
 }
 
 impl Cli {
-    pub fn process_command(&self) -> Result<(), AppErrors> {
+    pub fn process_command(self) -> Result<(), AppErrors> {
         //If the firs argument isn't a sentence then return CurrentlyUnavailable.
-        match &self {
+        match self {
             Cli::Sentence { .. } => return Err(AppErrors::CurrentlyUnavailable),
             Cli::Config { command, .. } => match command {
                 ConfigCommands::Set { command, .. } => match command {
@@ -118,11 +118,11 @@ impl Cli {
                         //Input data that I want to save in config file
                         let input = InputData::Private(key_value);
                         //Call set function with path where we want to save config data.
-                        set_config_data(&get_path(CONFIG_NAME)?, &input)?;
+                        set_config_data(&get_path(CONFIG_NAME)?, input)?;
                     }
                     SetArguments::Public { key_value, .. } => {
                         let input = InputData::Public(key_value);
-                        set_config_data(&get_path(CONFIG_NAME)?, &input)?;
+                        set_config_data(&get_path(CONFIG_NAME)?, input)?;
                     }
                 },
                 //It shows in console all config data.

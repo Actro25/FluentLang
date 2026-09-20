@@ -1,14 +1,14 @@
-use crate::error::AppErrors;
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
+use serde::{Deserialize, Serialize};
+use fluentlang_core::error::AppErrors;
 
 #[derive(Debug)]
-pub enum InputData<'a> {
-    Private(&'a String),
-    Public(&'a String)
+pub enum InputData {
+    Private(String),
+    Public(String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -17,11 +17,11 @@ pub struct OutputData{
     pub private: String,
 }
 
-//This function set data into JSON config by path.
-//Initially, this function takes existed data (OutputData) in JSON file to not lost it.
-//Then the function set data into the struct (OutputData) by InputData struct.
-//This function also creates config.json
-pub fn set_config_data(path: impl AsRef<Path>, set_data: &InputData) -> Result<(), AppErrors> {
+///This function set data into JSON config by path.
+///Initially, this function takes existed data (OutputData) in JSON file to not lost it.
+///Then the function set data into the struct (OutputData) by InputData struct.
+///This function also creates config.json
+pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<(), AppErrors> {
     let path = path.as_ref();
     /*
      If the get_config_data return Ok than return the data that was returned.
@@ -37,8 +37,8 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: &InputData) -> Result<(
 
     //If the parameter from user was entered then clone it in setting struct.
     match set_data {
-        InputData::Private(key) => config_data.public = key.to_string(),
-        InputData::Public(key) => config_data.private = key.to_string(),
+        InputData::Private(key) => config_data.public = key,
+        InputData::Public(key) => config_data.private = key,
     }
 
     //If the config dir isn't exist then we create it
@@ -56,8 +56,8 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: &InputData) -> Result<(
     Ok(())
 }
 
-//This function will return Error::ConfigFileDoesntExist if path returns false from function .exists().
-//If path exists it will return OutputData struct if the path exists and there isn't any io error.
+///This function will return Error::ConfigFileDoesntExist if path returns false from function .exists().
+///If path exists it will return OutputData struct if the path exists and there isn't any io error.
 pub fn get_config_data(path: impl AsRef<Path>,) -> Result<OutputData, AppErrors> {
     let path = path.as_ref();
 
