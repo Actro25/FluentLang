@@ -1,0 +1,13 @@
+[package]
+name = "fluentlang-cli"
+authors = ["Actro25"]
+description = "Nothing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fluentlang-core = { path = "../fluentlang-core" }
+clap = { workspace = true, features = ["derive"] }
+serde = { workspace = true, features = ["derive"] }
+dirs = { workspace = true }
+serde_json = { workspace = true }
