@@ -3,7 +3,8 @@ resolver = "3"
 
 members = [
     "crates/fluentlang-cli",
-    "crates/fluentlang-core"
+    "crates/fluentlang-core",
+    "crates/fluentlang-api"
 ]
 
 [workspace.dependencies]

@@ -120,6 +120,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "fluentlang-api"
+version = "0.1.0"
+
+[[package]]
 name = "fluentlang-cli"
 version = "0.1.0"
 dependencies = [
