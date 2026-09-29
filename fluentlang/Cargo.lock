@@ -314,6 +314,7 @@ checksum = "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484"
 name = "fluentlang-api"
 version = "0.1.0"
 dependencies = [
+ "fluentlang-core",
  "reqwest",
  "serde_json",
 ]
@@ -323,11 +324,8 @@ name = "fluentlang-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
- "dirs",
  "fluentlang-api",
  "fluentlang-core",
- "serde",
- "serde_json",
  "tokio",
 ]
 
@@ -335,6 +333,8 @@ dependencies = [
 name = "fluentlang-core"
 version = "0.1.0"
 dependencies = [
+ "dirs",
+ "serde",
  "serde_json",
  "thiserror",
 ]
@@ -768,9 +768,9 @@ checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
 
 [[package]]
 name = "libredox"
-version = "0.1.24"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6480ccc157a1389bb2e4891b24751b0f798ba640d22386f23143fbcc89da195a"
+checksum = "61ff90caf6077a803a240f62fdbe88645a890bbca49ef8174c3cb0404362171d"
 dependencies = [
  "libc",
 ]

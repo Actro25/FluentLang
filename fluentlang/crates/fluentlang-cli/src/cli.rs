@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
+use fluentlang_core::config_parsing::{InputData, get_config_data, get_path, set_config_data};
 use fluentlang_core::error::AppErrors;
-use crate::config_parsing::{get_path, set_config_data, InputData, get_config_data};
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -107,10 +107,12 @@ This is a config parameters that contains a value."#
 }
 
 impl Cli {
-    pub fn process_command(self) -> Result<(), AppErrors> {
+    pub async fn process_command(self) -> Result<(), AppErrors> {
         //If the firs argument isn't a sentence then return CurrentlyUnavailable.
         match self {
-            Cli::Sentence { .. } => return Err(AppErrors::CurrentlyUnavailable),
+            Cli::Sentence { sentence ,.. } => {
+                fluentlang_api::api::GroqAPI::send_request(sentence).await?;
+            },
             Cli::Config { command, .. } => match command {
                 ConfigCommands::Set { command, .. } => match command {
                     SetArguments::Private { key_value, .. } => {

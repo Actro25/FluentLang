@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
-use fluentlang_core::error::AppErrors;
+use crate::error::AppErrors;
 
 #[derive(Debug)]
 pub enum InputData {
@@ -37,8 +37,8 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
 
     //If the parameter from user was entered then clone it in setting struct.
     match set_data {
-        InputData::Private(key) => config_data.public = key,
-        InputData::Public(key) => config_data.private = key,
+        InputData::Private(key) => config_data.private = key,
+        InputData::Public(key) => config_data.public = key,
     }
 
     //If the config dir isn't exist then we create it
