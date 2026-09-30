@@ -1,16 +1,10 @@
-﻿use serde_json::json;
-use fluentlang_core::config_parsing;
-use fluentlang_core::error::AppErrors;
+﻿use fluentlang_core::error::AppErrors;
+use serde_json::json;
 
 pub struct GroqAPI {}
 
 impl GroqAPI {
-    pub fn new() -> Self {
-        Self{}
-    }
-
     pub async fn send_request(sentence: String, private_key: String) -> Result<String, AppErrors> {
-        let config_data = config_parsing::get_config_data(config_parsing::get_path("config.json")?)?;
         let body = json!({
             "model": "openai/gpt-oss-120b",
             "messages": [
@@ -33,7 +27,8 @@ impl GroqAPI {
             .header("Content-Type", "application/json")
             .header("Authorization", format!("Bearer {}", private_key))
             .json(&body)
-            .send().await;
+            .send()
+            .await;
         if let Ok(res) = response {
             println!("Status: {}", res.status());
             let response_text = res.text().await;
