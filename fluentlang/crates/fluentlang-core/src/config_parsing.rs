@@ -5,16 +5,46 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use crate::error::AppErrors;
 
-#[derive(Debug)]
 pub enum InputData {
+    GroqCloud(Keys),
+    GoogleAiStudio(Keys),
+    OpenRouter(Keys),
+    CerebrasInference(Keys),
+    CurrentProvider(AvailableAiProviders),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum AvailableAiProviders{
+    #[default]
+    ProviderIsNotChosen,
+    GroqCloud,
+    GoogleAiStudio,
+    OpenRouter,
+    CerebrasInference,
+    #[serde(other)]
+    Unknow,
+}
+
+#[derive(Debug)]
+pub enum Keys {
     Private(String),
     Public(String)
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct OutputData{
-    pub public: String,
+    pub groq_cloud: ApiKeys,
+    pub google_ai_studio: ApiKeys,
+    pub open_router: ApiKeys,
+    pub cerebras_inference: ApiKeys,
+    pub current_provider: AvailableAiProviders
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ApiKeys{
     pub private: String,
+    pub public: String,
 }
 
 ///This function set data into JSON config by path.
@@ -37,8 +67,29 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
 
     //If the parameter from user was entered then clone it in setting struct.
     match set_data {
-        InputData::Private(key) => config_data.private = key,
-        InputData::Public(key) => config_data.public = key,
+        InputData::GroqCloud(keys) => match keys {
+            Keys::Private(key) => config_data.groq_cloud.private = key,
+            Keys::Public(key) => config_data.groq_cloud.public = key
+        },
+        InputData::GoogleAiStudio(keys) => match keys {
+            Keys::Private(key) => config_data.google_ai_studio.private = key,
+            Keys::Public(key) => config_data.google_ai_studio.public = key
+        },
+        InputData::OpenRouter(keys) => match keys {
+            Keys::Private(key) => config_data.open_router.private = key,
+            Keys::Public(key) => config_data.open_router.public = key
+        },
+        InputData::CerebrasInference(keys) => match keys {
+            Keys::Private(key) => config_data.cerebras_inference.private = key,
+            Keys::Public(key) => config_data.cerebras_inference.public = key
+        },
+        InputData::CurrentProvider(provider) => match provider {
+            AvailableAiProviders::GroqCloud => config_data.current_provider = AvailableAiProviders::GroqCloud,
+            AvailableAiProviders::GoogleAiStudio => config_data.current_provider = AvailableAiProviders::GoogleAiStudio,
+            AvailableAiProviders::OpenRouter => config_data.current_provider = AvailableAiProviders::OpenRouter,
+            AvailableAiProviders::CerebrasInference=> config_data.current_provider = AvailableAiProviders::CerebrasInference,
+            _ => {}
+        }
     }
 
     //If the config dir isn't exist then we create it

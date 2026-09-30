@@ -9,7 +9,7 @@ impl GroqAPI {
         Self{}
     }
 
-    pub async fn send_request(sentence: String) -> Result<String, AppErrors> {
+    pub async fn send_request(sentence: String, private_key: String) -> Result<String, AppErrors> {
         let config_data = config_parsing::get_config_data(config_parsing::get_path("config.json")?)?;
         let body = json!({
             "model": "openai/gpt-oss-120b",
@@ -31,7 +31,7 @@ impl GroqAPI {
         let response = reqwest::Client::new()
             .post("https://api.groq.com/openai/v1/chat/completions")
             .header("Content-Type", "application/json")
-            .header("Authorization", format!("Bearer {}", config_data.private))
+            .header("Authorization", format!("Bearer {}", private_key))
             .json(&body)
             .send().await;
         if let Ok(res) = response {

@@ -12,4 +12,8 @@ pub enum AppErrors {
     ConfigIOProblem(#[from] std::io::Error),
     #[error("Can't find path to the config file.")]
     CantFindPathToConfigFile,
+    #[error("Current provider is not chosen. Please chose a provider.")]
+    ProviderIsNotChosen,
+    #[error("Current provider is unknown. Please enter current provider again.")]
+    UnknowProvider,
 }
