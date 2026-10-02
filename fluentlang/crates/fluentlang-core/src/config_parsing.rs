@@ -6,7 +6,7 @@ use std::io::{BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 
 pub enum InputData {
-    GroqCloud(Keys),
+    GroqCloud(Key),
     GoogleAiStudio(Keys),
     OpenRouter(Keys),
     CerebrasInference(Keys),
@@ -27,6 +27,11 @@ pub enum AvailableAiProviders {
 }
 
 #[derive(Debug)]
+pub enum Key {
+    Private(String),
+}
+
+#[derive(Debug)]
 pub enum Keys {
     Private(String),
     Public(String),
@@ -34,11 +39,16 @@ pub enum Keys {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct OutputData {
-    pub groq_cloud: ApiKeys,
+    pub groq_cloud: ApiKey,
     pub google_ai_studio: ApiKeys,
     pub open_router: ApiKeys,
     pub cerebras_inference: ApiKeys,
     pub current_provider: AvailableAiProviders,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct ApiKey {
+    pub private: String
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -68,8 +78,7 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
     //If the parameter from user was entered then clone it in setting struct.
     match set_data {
         InputData::GroqCloud(keys) => match keys {
-            Keys::Private(key) => config_data.groq_cloud.private = key,
-            Keys::Public(key) => config_data.groq_cloud.public = key,
+            Key::Private(key) => config_data.groq_cloud.private = key
         },
         InputData::GoogleAiStudio(keys) => match keys {
             Keys::Private(key) => config_data.google_ai_studio.private = key,

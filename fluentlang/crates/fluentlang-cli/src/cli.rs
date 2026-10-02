@@ -1,7 +1,5 @@
 use clap::{Parser, Subcommand};
-use fluentlang_core::config_parsing::{
-    AvailableAiProviders, InputData, Keys, OutputData, get_config_data, get_path, set_config_data,
-};
+use fluentlang_core::config_parsing::{get_config_data, get_path, set_config_data, AvailableAiProviders, InputData, Key, Keys, OutputData};
 use fluentlang_api::api::GroqAPI;
 use fluentlang_core::error::AppErrors;
 
@@ -95,7 +93,7 @@ you have to just enter private key without public.
     )]
     GroqCloud {
         #[command(subcommand)]
-        command: SetArguments,
+        command: SetKey,
     },
 
     #[command(
@@ -108,7 +106,7 @@ you have to just enter private key without public.
     )]
     GoogleAiStudio {
         #[command(subcommand)]
-        command: SetArguments,
+        command: SetKeys,
     },
 
     #[command(
@@ -121,7 +119,7 @@ you have to just enter private key without public.
     )]
     OpenRouter {
         #[command(subcommand)]
-        command: SetArguments,
+        command: SetKeys,
     },
 
     #[command(
@@ -134,7 +132,7 @@ you have to just enter private key without public.
     )]
     CerebrasInference {
         #[command(subcommand)]
-        command: SetArguments,
+        command: SetKeys,
     },
 
     #[command(
@@ -182,16 +180,31 @@ pub enum SetCurrentProvider {
 }
 
 #[derive(Subcommand, Debug)]
-pub enum SetArguments {
+pub enum SetKey {
     #[command(
         version,
         about = "A private key parameter",
         long_about = r#"
 This is arguments struct for config data that is also subcommand.
 For example:
-fluentlang config set private "YOUR-PRIVATE-KEY"
-                        ^
-This is a config parameters that contains a value."#
+fluentlang config set API_PROVIDER private "YOUR-PRIVATE-KEY"
+                                      ^
+            This is a config parameters that contains a value."#
+    )]
+    Private { key_value: String }
+}
+
+#[derive(Subcommand, Debug)]
+pub enum SetKeys {
+    #[command(
+        version,
+        about = "A private key parameter",
+        long_about = r#"
+This is arguments struct for config data that is also subcommand.
+For example:
+fluentlang config set API_PROVIDER private "YOUR-PRIVATE-KEY"
+                                      ^
+            This is a config parameters that contains a value."#
     )]
     Private { key_value: String },
 
@@ -201,18 +214,26 @@ This is a config parameters that contains a value."#
         long_about = r#"
 This is arguments struct for config data that is also subcommand.
 For example:
-fluentlang config set public "YOUR-PRIVATE-KEY"
-                        ^
-This is a config parameters that contains a value."#
+fluentlang config set API_PROVIDER public "YOUR-PRIVATE-KEY"
+                                      ^
+            This is a config parameters that contains a value."#
     )]
     Public { key_value: String },
 }
 
-impl SetArguments {
+impl SetKey {
+    fn into_keys(self) -> Key {
+        match self {
+            SetKey::Private { key_value, .. } => Key::Private(key_value)
+        }
+    }
+}
+
+impl SetKeys {
     fn into_keys(self) -> Keys {
         match self {
-            SetArguments::Private { key_value, .. } => Keys::Private(key_value),
-            SetArguments::Public { key_value, .. } => Keys::Public(key_value),
+            SetKeys::Private { key_value, .. } => Keys::Private(key_value),
+            SetKeys::Public { key_value, .. } => Keys::Public(key_value),
         }
     }
 }
@@ -302,7 +323,6 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("Current Active Provider: {:?}\n", output.current_provider);
 
     println!("--- Groq Cloud ---");
-    println!("  Public:  {}", output.groq_cloud.public);
     println!("  Private: {}", output.groq_cloud.private);
 
     println!("\n--- Google AI Studio ---");
