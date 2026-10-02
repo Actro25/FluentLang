@@ -240,79 +240,88 @@ impl SetKeys {
 
 impl Cli {
     pub async fn process_command(self) -> Result<(), AppErrors> {
-        //If the firs argument isn't a sentence then return CurrentlyUnavailable.
         match self {
-            Cli::Sentence { sentence, .. } => {
-                //Firstly, we have to get what the current provider is.
-                let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
-                    Ok(data) => data,
-                    Err(AppErrors::ConfigFileDoesntExist) => OutputData::default(),
-                    Err(err) => return Err(err),
-                };
-
-                //When we have config data we send request to the corresponding provider.
-                match config_data.current_provider {
-                    AvailableAiProviders::GroqCloud => {
-                        GroqAPI::send_request(
-                            sentence,
-                            config_data.groq_cloud.private,
-                        )
-                        .await?;
-                    }
-                    AvailableAiProviders::GoogleAiStudio => {
-                        return Err(AppErrors::CurrentlyUnavailable);
-                    }
-                    AvailableAiProviders::OpenRouter => {
-                        return Err(AppErrors::CurrentlyUnavailable);
-                    }
-                    AvailableAiProviders::CerebrasInference => {
-                        return Err(AppErrors::CurrentlyUnavailable);
-                    }
-                    AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
-                    AvailableAiProviders::ProviderIsNotChosen => {
-                        return Err(AppErrors::ProviderIsNotChosen);
-                    }
-                };
-            }
-            Cli::Config { command, .. } => match command {
-                ConfigCommands::Set { command, .. } => {
-                    //Parsing data into input
-                    let input = match command {
-                        SetSubcommands::GroqCloud { command, .. } => {
-                            InputData::GroqCloud(command.into_keys())
-                        }
-                        SetSubcommands::GoogleAiStudio { command, .. } => {
-                            InputData::GoogleAiStudio(command.into_keys())
-                        }
-                        SetSubcommands::OpenRouter { command, .. } => {
-                            InputData::OpenRouter(command.into_keys())
-                        }
-                        SetSubcommands::CerebrasInference { command, .. } => {
-                            InputData::CerebrasInference(command.into_keys())
-                        }
-                        SetSubcommands::CurrentProvider { command, .. } => {
-                            let provider = match command {
-                                SetCurrentProvider::GroqCloud => AvailableAiProviders::GroqCloud,
-                                SetCurrentProvider::GoogleAiStudio => {
-                                    AvailableAiProviders::GoogleAiStudio
-                                }
-                                SetCurrentProvider::OpenRouter => AvailableAiProviders::OpenRouter,
-                                SetCurrentProvider::CerebrasInference => {
-                                    AvailableAiProviders::CerebrasInference
-                                }
-                            };
-                            InputData::CurrentProvider(provider)
-                        }
-                    };
-
-                    set_config_data(&get_path(CONFIG_NAME)?, input)?;
-                }
-                ConfigCommands::Get => show_config_data()?,
-            },
+            Cli::Sentence { sentence, .. } => cli_sentence_command(sentence).await?,
+            Cli::Config { command, .. } => cli_config_command(command)?,
         }
 
         Ok(())
     }
+}
+
+async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
+    //Firstly, we have to get what the current provider is.
+    let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
+        Ok(data) => data,
+        Err(AppErrors::ConfigFileDoesntExist) => OutputData::default(),
+        Err(err) => return Err(err),
+    };
+
+    //When we have config data we send request to the corresponding provider.
+    match config_data.current_provider {
+        AvailableAiProviders::GroqCloud => {
+            GroqAPI::send_request(
+                sentence,
+                config_data.groq_cloud.private,
+            )
+                .await?;
+        }
+        AvailableAiProviders::GoogleAiStudio => {
+            return Err(AppErrors::CurrentlyUnavailable);
+        }
+        AvailableAiProviders::OpenRouter => {
+            return Err(AppErrors::CurrentlyUnavailable);
+        }
+        AvailableAiProviders::CerebrasInference => {
+            return Err(AppErrors::CurrentlyUnavailable);
+        }
+        AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
+        AvailableAiProviders::ProviderIsNotChosen => {
+            return Err(AppErrors::ProviderIsNotChosen);
+        }
+    };
+
+    Ok(())
+}
+
+fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
+    match command {
+        ConfigCommands::Set { command, .. } => {
+            //Parsing data into input
+            let input = match command {
+                SetSubcommands::GroqCloud { command, .. } => {
+                    InputData::GroqCloud(command.into_keys())
+                }
+                SetSubcommands::GoogleAiStudio { command, .. } => {
+                    InputData::GoogleAiStudio(command.into_keys())
+                }
+                SetSubcommands::OpenRouter { command, .. } => {
+                    InputData::OpenRouter(command.into_keys())
+                }
+                SetSubcommands::CerebrasInference { command, .. } => {
+                    InputData::CerebrasInference(command.into_keys())
+                }
+                SetSubcommands::CurrentProvider { command, .. } => {
+                    let provider = match command {
+                        SetCurrentProvider::GroqCloud => AvailableAiProviders::GroqCloud,
+                        SetCurrentProvider::GoogleAiStudio => {
+                            AvailableAiProviders::GoogleAiStudio
+                        }
+                        SetCurrentProvider::OpenRouter => AvailableAiProviders::OpenRouter,
+                        SetCurrentProvider::CerebrasInference => {
+                            AvailableAiProviders::CerebrasInference
+                        }
+                    };
+                    InputData::CurrentProvider(provider)
+                }
+            };
+
+            set_config_data(&get_path(CONFIG_NAME)?, input)?;
+        }
+        ConfigCommands::Get => show_config_data()?,
+    };
+
+    Ok(())
 }
 
 pub fn show_config_data() -> Result<(), AppErrors> {
