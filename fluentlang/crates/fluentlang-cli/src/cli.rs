@@ -42,14 +42,14 @@ Example:
         long_about = r#"Configure default AI providers, manage private/public API keys, and view stored application settings.
 
 Examples:
-  fluentlang config get
+  fluentlang config
   fluentlang config default groq-cloud
   fluentlang config set google.api_key "AIzaSy..."
 "#
     )]
     Config {
         #[command(subcommand)]
-        command: ConfigCommands,
+        command: Option<ConfigCommands>,
     },
 }
 
@@ -77,17 +77,6 @@ Example:
 "#
     )]
     Default { provider: Providers },
-
-    #[command(
-        version,
-        about = "Display current configuration settings",
-        long_about = r#"Prints all configured API keys and the currently active default provider.
-
-Example:
-  fluentlang config get
-"#
-    )]
-    Get,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -126,7 +115,10 @@ impl Cli {
     pub async fn process_command(self) -> Result<(), AppErrors> {
         match self {
             Cli::Sentence { sentence, .. } => cli_sentence_command(sentence).await?,
-            Cli::Config { command, .. } => cli_config_command(command)?,
+            Cli::Config { command, .. } => match command {
+                None => show_config_data()?,
+                Some(command) => cli_config_command(command)?,
+            },
         }
 
         Ok(())
@@ -178,7 +170,6 @@ fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
         }
-        ConfigCommands::Get => show_config_data()?,
         ConfigCommands::Default { provider } => {
             let input = match provider {
                 Providers::GroqCloud => InputData::CurrentProvider(AvailableAiProviders::GroqCloud),
