@@ -9,7 +9,7 @@ pub enum InputData {
     GroqCloud(Key),
     GoogleAiStudio(Keys),
     OpenRouter(Keys),
-    CerebrasInference(Keys),
+    CerebrasInference(Key),
     CurrentProvider(AvailableAiProviders),
 }
 
@@ -42,7 +42,7 @@ pub struct OutputData {
     pub groq_cloud: ApiKey,
     pub google_ai_studio: ApiKeys,
     pub open_router: ApiKeys,
-    pub cerebras_inference: ApiKeys,
+    pub cerebras_inference: ApiKey,
     pub current_provider: AvailableAiProviders,
 }
 
@@ -89,8 +89,7 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
             Keys::Public(key) => config_data.open_router.public = key,
         },
         InputData::CerebrasInference(keys) => match keys {
-            Keys::Private(key) => config_data.cerebras_inference.private = key,
-            Keys::Public(key) => config_data.cerebras_inference.public = key,
+            Key::Private(key) => config_data.cerebras_inference.private = key,
         },
         InputData::CurrentProvider(provider) => match provider {
             AvailableAiProviders::GroqCloud => {

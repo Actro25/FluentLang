@@ -1,6 +1,9 @@
-use clap::{Parser, Subcommand};
-use fluentlang_core::config_parsing::{get_config_data, get_path, set_config_data, AvailableAiProviders, InputData, Key, Keys, OutputData};
+use clap::{Parser, Subcommand, ValueEnum};
 use fluentlang_api::api::GroqAPI;
+use fluentlang_core::config_parsing::{
+    AvailableAiProviders, InputData, Key, Keys, OutputData, get_config_data, get_path,
+    set_config_data,
+};
 use fluentlang_core::error::AppErrors;
 
 const CONFIG_NAME: &str = "config.json";
@@ -64,8 +67,13 @@ fluentlang config set private "YOUR-PRIVATE-KEY"
 This is subcommand for config. This will help you to set data by parameters."#
     )]
     Set {
-        #[command(subcommand)]
-        command: SetSubcommands,
+        key: ConfigKey,
+        value: String,
+    },
+
+    #[command(version, about = "", long_about = "")]
+    Default {
+        provider: Providers,
     },
 
     #[command(
@@ -81,101 +89,34 @@ This is subcommand for config. It'll show config data."#
     Get,
 }
 
-#[derive(Subcommand, Debug)]
-pub enum SetSubcommands {
-    #[command(
-        version,
-        about = "This is an Api provider.",
-        long_about = r#"
-This is an Api provider that was made by Groq team. If this provider demand only private key and doesn't provide public
-you have to just enter private key without public.
-    "#
-    )]
-    GroqCloud {
-        #[command(subcommand)]
-        command: SetKey,
-    },
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum ConfigKey {
+    // Groq
+    #[value(name = "groq.private_key")]
+    GroqPrivateKey,
 
-    #[command(
-        version,
-        about = "This is an Api provider.",
-        long_about = r#"
-This is an Api provider that was made by Google team. If this provider demand only private key and doesn't provide public
-you have to just enter private key without public.
-    "#
-    )]
-    GoogleAiStudio {
-        #[command(subcommand)]
-        command: SetKeys,
-    },
+    // Google AI Studio
+    #[value(name = "google.private_key")]
+    GooglePrivateKey,
+    #[value(name = "google.public_key")]
+    GooglePublicKey,
 
-    #[command(
-        version,
-        about = "This is an Api provider.",
-        long_about = r#"
-This is an Api provider that was made by OpenRouter team. If this provider demand only private key and doesn't provide public
-you have to just enter private key without public.
-    "#
-    )]
-    OpenRouter {
-        #[command(subcommand)]
-        command: SetKeys,
-    },
+    // OpenRouter
+    #[value(name = "openrouter.private_key")]
+    OpenRouterPrivateKey,
+    #[value(name = "openrouter.public_key")]
+    OpenRouterPublicKey,
 
-    #[command(
-        version,
-        about = "This is an Api provider.",
-        long_about = r#"
-This is an Api provider that was made by Cerebras team. If this provider demand only private key and doesn't provide public
-you have to just enter private key without public.
-    "#
-    )]
-    CerebrasInference {
-        #[command(subcommand)]
-        command: SetKeys,
-    },
-
-    #[command(
-        version,
-        about = "Set the current active provider.",
-        long_about = r#"
-This command sets the current active AI provider that will be used for sending requests.
-    "#
-    )]
-    CurrentProvider {
-        #[command(subcommand)]
-        command: SetCurrentProvider,
-    },
+    // Cerebras
+    #[value(name = "cerebras.private_key")]
+    CerebrasPrivateKey,
 }
 
-#[derive(Subcommand, Debug)]
-pub enum SetCurrentProvider {
-    #[command(
-        version,
-        about = "Just a provider.",
-        long_about = "This is an Api provider that was made by Groq team."
-    )]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum Providers {
     GroqCloud,
-
-    #[command(
-        version,
-        about = "Just a provider.",
-        long_about = "This is an Api provider that was made by Google team."
-    )]
     GoogleAiStudio,
-
-    #[command(
-        version,
-        about = "Just a provider.",
-        long_about = "This is an Api provider that was made by OpenRouter team."
-    )]
     OpenRouter,
-
-    #[command(
-        version,
-        about = "Just a provider.",
-        long_about = "This is an Api provider that was made by Cerebras team."
-    )]
     CerebrasInference,
 }
 
@@ -191,7 +132,7 @@ fluentlang config set API_PROVIDER private "YOUR-PRIVATE-KEY"
                                       ^
             This is a config parameters that contains a value."#
     )]
-    Private { key_value: String }
+    Private { key_value: String },
 }
 
 #[derive(Subcommand, Debug)]
@@ -221,23 +162,6 @@ fluentlang config set API_PROVIDER public "YOUR-PRIVATE-KEY"
     Public { key_value: String },
 }
 
-impl SetKey {
-    fn into_keys(self) -> Key {
-        match self {
-            SetKey::Private { key_value, .. } => Key::Private(key_value)
-        }
-    }
-}
-
-impl SetKeys {
-    fn into_keys(self) -> Keys {
-        match self {
-            SetKeys::Private { key_value, .. } => Keys::Private(key_value),
-            SetKeys::Public { key_value, .. } => Keys::Public(key_value),
-        }
-    }
-}
-
 impl Cli {
     pub async fn process_command(self) -> Result<(), AppErrors> {
         match self {
@@ -260,11 +184,7 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
     //When we have config data we send request to the corresponding provider.
     match config_data.current_provider {
         AvailableAiProviders::GroqCloud => {
-            GroqAPI::send_request(
-                sentence,
-                config_data.groq_cloud.private,
-            )
-                .await?;
+            GroqAPI::send_request(sentence, config_data.groq_cloud.private).await?;
         }
         AvailableAiProviders::GoogleAiStudio => {
             return Err(AppErrors::CurrentlyUnavailable);
@@ -286,39 +206,29 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
 
 fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     match command {
-        ConfigCommands::Set { command, .. } => {
-            //Parsing data into input
-            let input = match command {
-                SetSubcommands::GroqCloud { command, .. } => {
-                    InputData::GroqCloud(command.into_keys())
-                }
-                SetSubcommands::GoogleAiStudio { command, .. } => {
-                    InputData::GoogleAiStudio(command.into_keys())
-                }
-                SetSubcommands::OpenRouter { command, .. } => {
-                    InputData::OpenRouter(command.into_keys())
-                }
-                SetSubcommands::CerebrasInference { command, .. } => {
-                    InputData::CerebrasInference(command.into_keys())
-                }
-                SetSubcommands::CurrentProvider { command, .. } => {
-                    let provider = match command {
-                        SetCurrentProvider::GroqCloud => AvailableAiProviders::GroqCloud,
-                        SetCurrentProvider::GoogleAiStudio => {
-                            AvailableAiProviders::GoogleAiStudio
-                        }
-                        SetCurrentProvider::OpenRouter => AvailableAiProviders::OpenRouter,
-                        SetCurrentProvider::CerebrasInference => {
-                            AvailableAiProviders::CerebrasInference
-                        }
-                    };
-                    InputData::CurrentProvider(provider)
-                }
+        ConfigCommands::Set { key, value } => {
+            let input = match key {
+                ConfigKey::GroqPrivateKey => InputData::GroqCloud(Key::Private(value)),
+                ConfigKey::GooglePrivateKey => InputData::GoogleAiStudio(Keys::Private(value)),
+                ConfigKey::GooglePublicKey => InputData::GoogleAiStudio(Keys::Public(value)),
+                ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Keys::Private(value)),
+                ConfigKey::OpenRouterPublicKey => InputData::OpenRouter(Keys::Public(value)),
+                ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value))
             };
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
         }
         ConfigCommands::Get => show_config_data()?,
+        ConfigCommands::Default { provider } => {
+            let input = match provider {
+                Providers::GroqCloud => InputData::CurrentProvider(AvailableAiProviders::GroqCloud),
+                Providers::GoogleAiStudio => InputData::CurrentProvider(AvailableAiProviders::GoogleAiStudio),
+                Providers::OpenRouter => InputData::CurrentProvider(AvailableAiProviders::OpenRouter),
+                Providers::CerebrasInference => InputData::CurrentProvider(AvailableAiProviders::CerebrasInference),
+            };
+
+            set_config_data(&get_path(CONFIG_NAME)?, input)?;
+        },
     };
 
     Ok(())
@@ -343,7 +253,6 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("  Private: {}", output.open_router.private);
 
     println!("\n--- Cerebras Inference ---");
-    println!("  Public:  {}", output.cerebras_inference.public);
     println!("  Private: {}", output.cerebras_inference.private);
 
     Ok(())
