@@ -12,25 +12,24 @@ const CONFIG_NAME: &str = "config.json";
 #[command(
     name = "fluentlang",
     version,
-    long_about = r#"
-This is base struct for cli.
-For example:
-fluentlang "This is my first sentence!"
-    ^                  ^
-This is key word       |
-           This is a sentence that you want to understand"#
+    about = "CLI tool to analyze and explain sentences using AI providers",
+    long_about = r#"A command-line application that connects to AI providers (Groq, Google AI Studio, OpenRouter, Cerebras) to generate detailed explanations of sentences.
+
+Examples:
+  fluentlang sentence "Break down this sentence for me."
+  fluentlang config default groq-cloud
+  fluentlang config set groq.private_key "gsk_..."
+"#
 )]
 pub enum Cli {
     #[command(
         version,
-        about = "An attribute that returns explained sentence",
-        long_about = r#"
-This is subcommand for key work "fluentlang"
-For example:
-fluentlang sentence "This is my first sentence!"
-               ^        ^
-This is subcommand      |
-           This is a sentence that you want to understand"#
+        about = "Explain and break down a given sentence",
+        long_about = r#"Sends a prompt to the currently configured AI provider to receive a detailed breakdown and explanation of the input text.
+
+Example:
+  fluentlang sentence "The quick brown fox jumps over the lazy dog."
+"#
     )]
     Sentence {
         #[arg(value_name = "SENTENCE")]
@@ -39,14 +38,14 @@ This is subcommand      |
 
     #[command(
         version,
-        about = "An attribute that helps to set up the config file",
-        long_about = r#"
-This is subcommand for key work "fluentlang"
-For example:
-fluentlang config set public "PUBLIC-KEY"
-               ^   ^
-This is subcommand |
-           This is also a subcommand but for "config""#
+        about = "Manage configuration settings and API credentials",
+        long_about = r#"Configure default AI providers, manage private/public API keys, and view stored application settings.
+
+Examples:
+  fluentlang config get
+  fluentlang config default groq-cloud
+  fluentlang config set google.api_key "AIzaSy..."
+"#
     )]
     Config {
         #[command(subcommand)]
@@ -58,108 +57,69 @@ This is subcommand |
 pub enum ConfigCommands {
     #[command(
         version,
-        about = "An attribute that setting up the config file by values",
-        long_about = r#"
-This is also subcommand struct but for MainCommands struct
-For example:
-fluentlang config set private "YOUR-PRIVATE-KEY"
-                  ^
-This is subcommand for config. This will help you to set data by parameters."#
-    )]
-    Set {
-        key: ConfigKey,
-        value: String,
-    },
+        about = "Set an API key or config property",
+        long_about = r#"Sets a configuration entry such as an API key for a specific AI provider.
 
-    #[command(version, about = "", long_about = "")]
-    Default {
-        provider: Providers,
-    },
+Examples:
+  fluentlang config set groq.private_key "gsk_..."
+  fluentlang config set openrouter.public_key "pk_..."
+"#
+    )]
+    Set { key: ConfigKey, value: String },
 
     #[command(
         version,
-        about = "An attribute that gets and shows all the config data",
-        long_about = r#"
-This is also subcommand struct but for MainCommands struct
-For example:
-fluentlang config get
-                  ^
-This is subcommand for config. It'll show config data."#
+        about = "Set the default active AI provider",
+        long_about = r#"Switches the primary AI provider used for analyzing sentences.
+
+Example:
+  fluentlang config default groq-cloud
+"#
+    )]
+    Default { provider: Providers },
+
+    #[command(
+        version,
+        about = "Display current configuration settings",
+        long_about = r#"Prints all configured API keys and the currently active default provider.
+
+Example:
+  fluentlang config get
+"#
     )]
     Get,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum ConfigKey {
-    // Groq
     #[value(name = "groq.private_key")]
     GroqPrivateKey,
 
-    // Google AI Studio
     #[value(name = "google.private_key")]
     GooglePrivateKey,
     #[value(name = "google.public_key")]
     GooglePublicKey,
 
-    // OpenRouter
     #[value(name = "openrouter.private_key")]
     OpenRouterPrivateKey,
     #[value(name = "openrouter.public_key")]
     OpenRouterPublicKey,
 
-    // Cerebras
     #[value(name = "cerebras.private_key")]
     CerebrasPrivateKey,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum Providers {
+    #[value(alias = "groq")]
     GroqCloud,
+
+    #[value(alias = "google-ai")]
     GoogleAiStudio,
+
     OpenRouter,
+
     CerebrasInference,
-}
-
-#[derive(Subcommand, Debug)]
-pub enum SetKey {
-    #[command(
-        version,
-        about = "A private key parameter",
-        long_about = r#"
-This is arguments struct for config data that is also subcommand.
-For example:
-fluentlang config set API_PROVIDER private "YOUR-PRIVATE-KEY"
-                                      ^
-            This is a config parameters that contains a value."#
-    )]
-    Private { key_value: String },
-}
-
-#[derive(Subcommand, Debug)]
-pub enum SetKeys {
-    #[command(
-        version,
-        about = "A private key parameter",
-        long_about = r#"
-This is arguments struct for config data that is also subcommand.
-For example:
-fluentlang config set API_PROVIDER private "YOUR-PRIVATE-KEY"
-                                      ^
-            This is a config parameters that contains a value."#
-    )]
-    Private { key_value: String },
-
-    #[command(
-        version,
-        about = "A public key parameter",
-        long_about = r#"
-This is arguments struct for config data that is also subcommand.
-For example:
-fluentlang config set API_PROVIDER public "YOUR-PRIVATE-KEY"
-                                      ^
-            This is a config parameters that contains a value."#
-    )]
-    Public { key_value: String },
 }
 
 impl Cli {
@@ -213,7 +173,7 @@ fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
                 ConfigKey::GooglePublicKey => InputData::GoogleAiStudio(Keys::Public(value)),
                 ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Keys::Private(value)),
                 ConfigKey::OpenRouterPublicKey => InputData::OpenRouter(Keys::Public(value)),
-                ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value))
+                ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value)),
             };
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
@@ -222,13 +182,19 @@ fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
         ConfigCommands::Default { provider } => {
             let input = match provider {
                 Providers::GroqCloud => InputData::CurrentProvider(AvailableAiProviders::GroqCloud),
-                Providers::GoogleAiStudio => InputData::CurrentProvider(AvailableAiProviders::GoogleAiStudio),
-                Providers::OpenRouter => InputData::CurrentProvider(AvailableAiProviders::OpenRouter),
-                Providers::CerebrasInference => InputData::CurrentProvider(AvailableAiProviders::CerebrasInference),
+                Providers::GoogleAiStudio => {
+                    InputData::CurrentProvider(AvailableAiProviders::GoogleAiStudio)
+                }
+                Providers::OpenRouter => {
+                    InputData::CurrentProvider(AvailableAiProviders::OpenRouter)
+                }
+                Providers::CerebrasInference => {
+                    InputData::CurrentProvider(AvailableAiProviders::CerebrasInference)
+                }
             };
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
-        },
+        }
     };
 
     Ok(())
