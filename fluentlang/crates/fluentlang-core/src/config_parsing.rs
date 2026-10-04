@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 pub enum InputData {
     GroqCloud(Key),
     GoogleAiStudio(Keys),
-    OpenRouter(Keys),
+    OpenRouter(Key),
     CerebrasInference(Key),
     CurrentProvider(AvailableAiProviders),
 }
@@ -77,16 +77,15 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
 
     //If the parameter from user was entered then clone it in setting struct.
     match set_data {
-        InputData::GroqCloud(keys) => match keys {
+        InputData::GroqCloud(key) => match key {
             Key::Private(key) => config_data.groq_cloud.private = key
         },
         InputData::GoogleAiStudio(keys) => match keys {
             Keys::Private(key) => config_data.google_ai_studio.private = key,
             Keys::Public(key) => config_data.google_ai_studio.public = key,
         },
-        InputData::OpenRouter(keys) => match keys {
-            Keys::Private(key) => config_data.open_router.private = key,
-            Keys::Public(key) => config_data.open_router.public = key,
+        InputData::OpenRouter(key) => match key {
+            Key::Private(key) => config_data.open_router.private = key,
         },
         InputData::CerebrasInference(keys) => match keys {
             Key::Private(key) => config_data.cerebras_inference.private = key,

@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
-use fluentlang_api::api::GroqAPI;
+use fluentlang_api::groq_api::GroqAPI;
+use fluentlang_api::open_router::OpenRouterAPI;
 use fluentlang_core::config_parsing::{
     AvailableAiProviders, InputData, Key, Keys, OutputData, get_config_data, get_path,
     set_config_data,
@@ -61,8 +62,8 @@ pub enum ConfigCommands {
         long_about = r#"Sets a configuration entry such as an API key for a specific AI provider.
 
 Examples:
-  fluentlang config set groq.private_key "gsk_..."
-  fluentlang config set openrouter.public_key "pk_..."
+  fluentlang config set groq-cloud.private_key "gsk_..."
+  fluentlang config set open-router.public_key "pk_..."
 "#
     )]
     Set { key: ConfigKey, value: String },
@@ -81,33 +82,33 @@ Example:
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum ConfigKey {
-    #[value(name = "groq.private_key")]
+    #[value(name = "groq-cloud.private_key")]
     GroqPrivateKey,
 
-    #[value(name = "google.private_key")]
+    #[value(name = "google-ai.private_key")]
     GooglePrivateKey,
-    #[value(name = "google.public_key")]
+    #[value(name = "google-ai.public_key")]
     GooglePublicKey,
 
-    #[value(name = "openrouter.private_key")]
+    #[value(name = "open-router.private_key")]
     OpenRouterPrivateKey,
-    #[value(name = "openrouter.public_key")]
-    OpenRouterPublicKey,
 
-    #[value(name = "cerebras.private_key")]
+    #[value(name = "cerebras-inference.private_key")]
     CerebrasPrivateKey,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
 pub enum Providers {
-    #[value(alias = "groq")]
+    #[value(name = "groq-cloud", alias = "groq")]
     GroqCloud,
 
-    #[value(alias = "google-ai")]
+    #[value(name = "google-ai")]
     GoogleAiStudio,
 
+    #[value(name = "open-router")]
     OpenRouter,
 
+    #[value(name = "cerebras-inference", alias = "cerebras")]
     CerebrasInference,
 }
 
@@ -142,7 +143,7 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
             return Err(AppErrors::CurrentlyUnavailable);
         }
         AvailableAiProviders::OpenRouter => {
-            return Err(AppErrors::CurrentlyUnavailable);
+            OpenRouterAPI::send_request(sentence, config_data.open_router.private).await?;
         }
         AvailableAiProviders::CerebrasInference => {
             return Err(AppErrors::CurrentlyUnavailable);
@@ -163,8 +164,7 @@ fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
                 ConfigKey::GroqPrivateKey => InputData::GroqCloud(Key::Private(value)),
                 ConfigKey::GooglePrivateKey => InputData::GoogleAiStudio(Keys::Private(value)),
                 ConfigKey::GooglePublicKey => InputData::GoogleAiStudio(Keys::Public(value)),
-                ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Keys::Private(value)),
-                ConfigKey::OpenRouterPublicKey => InputData::OpenRouter(Keys::Public(value)),
+                ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Key::Private(value)),
                 ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value)),
             };
 
@@ -206,7 +206,6 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("  Private: {}", output.google_ai_studio.private);
 
     println!("\n--- Open Router ---");
-    println!("  Public:  {}", output.open_router.public);
     println!("  Private: {}", output.open_router.private);
 
     println!("\n--- Cerebras Inference ---");

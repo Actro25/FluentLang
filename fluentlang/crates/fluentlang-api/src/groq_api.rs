@@ -29,6 +29,7 @@ impl GroqAPI {
             .json(&body)
             .send()
             .await;
+        
         if let Ok(res) = response {
             println!("Status: {}", res.status());
             let response_text = res.text().await;
