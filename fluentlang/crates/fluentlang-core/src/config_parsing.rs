@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 pub enum InputData {
     GroqCloud(Key),
-    GoogleAiStudio(Keys),
+    GoogleAiStudio(Key),
     OpenRouter(Key),
     CerebrasInference(Key),
     CurrentProvider(AvailableAiProviders),
@@ -31,17 +31,11 @@ pub enum Key {
     Private(String),
 }
 
-#[derive(Debug)]
-pub enum Keys {
-    Private(String),
-    Public(String),
-}
-
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct OutputData {
     pub groq_cloud: ApiKey,
-    pub google_ai_studio: ApiKeys,
-    pub open_router: ApiKeys,
+    pub google_ai_studio: ApiKey,
+    pub open_router: ApiKey,
     pub cerebras_inference: ApiKey,
     pub current_provider: AvailableAiProviders,
 }
@@ -49,12 +43,6 @@ pub struct OutputData {
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct ApiKey {
     pub private: String
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct ApiKeys {
-    pub private: String,
-    pub public: String,
 }
 
 ///This function set data into JSON config by path.
@@ -81,8 +69,7 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
             Key::Private(key) => config_data.groq_cloud.private = key
         },
         InputData::GoogleAiStudio(keys) => match keys {
-            Keys::Private(key) => config_data.google_ai_studio.private = key,
-            Keys::Public(key) => config_data.google_ai_studio.public = key,
+            Key::Private(key) => config_data.google_ai_studio.private = key
         },
         InputData::OpenRouter(key) => match key {
             Key::Private(key) => config_data.open_router.private = key,

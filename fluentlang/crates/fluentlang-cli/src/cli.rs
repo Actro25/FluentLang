@@ -1,8 +1,9 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use fluentlang_api::groq_api::GroqAPI;
 use fluentlang_api::open_router::OpenRouterAPI;
+use fluentlang_api::google_ai_studio::GoogleAiStudio;
 use fluentlang_core::config_parsing::{
-    AvailableAiProviders, InputData, Key, Keys, OutputData, get_config_data, get_path,
+    AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path,
     set_config_data,
 };
 use fluentlang_core::error::AppErrors;
@@ -87,8 +88,6 @@ pub enum ConfigKey {
 
     #[value(name = "google-ai.private_key")]
     GooglePrivateKey,
-    #[value(name = "google-ai.public_key")]
-    GooglePublicKey,
 
     #[value(name = "open-router.private_key")]
     OpenRouterPrivateKey,
@@ -140,7 +139,7 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
             GroqAPI::send_request(sentence, config_data.groq_cloud.private).await?;
         }
         AvailableAiProviders::GoogleAiStudio => {
-            return Err(AppErrors::CurrentlyUnavailable);
+            GoogleAiStudio::send_request(sentence, config_data.google_ai_studio.private).await?;
         }
         AvailableAiProviders::OpenRouter => {
             OpenRouterAPI::send_request(sentence, config_data.open_router.private).await?;
@@ -162,8 +161,7 @@ fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
         ConfigCommands::Set { key, value } => {
             let input = match key {
                 ConfigKey::GroqPrivateKey => InputData::GroqCloud(Key::Private(value)),
-                ConfigKey::GooglePrivateKey => InputData::GoogleAiStudio(Keys::Private(value)),
-                ConfigKey::GooglePublicKey => InputData::GoogleAiStudio(Keys::Public(value)),
+                ConfigKey::GooglePrivateKey => InputData::GoogleAiStudio(Key::Private(value)),
                 ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Key::Private(value)),
                 ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value)),
             };
@@ -202,7 +200,6 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("  Private: {}", output.groq_cloud.private);
 
     println!("\n--- Google AI Studio ---");
-    println!("  Public:  {}", output.google_ai_studio.public);
     println!("  Private: {}", output.google_ai_studio.private);
 
     println!("\n--- Open Router ---");
