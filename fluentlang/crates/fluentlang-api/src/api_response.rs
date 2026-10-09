@@ -4,8 +4,6 @@
 
 impl ApiResponse {
     pub fn new(content: String) -> Self {
-        Self{
-            content
-        }
+        Self { content }
     }
 }

@@ -45,21 +45,21 @@ impl ApiProvider for GoogleAiStudioAPI {
 
         let status_code = response.status();
         match status_code {
-            StatusCode::OK => {
-                Ok(Self::parse_to_response(response).await?)
-            }
+            StatusCode::OK => Ok(Self::parse_to_response(response).await?),
             code if code.is_client_error() => {
                 Err(AppErrors::ClientErrorApi(status_code.to_string()))
             }
             code if code.is_server_error() => {
                 Err(AppErrors::ServerErrorApi(status_code.to_string()))
             }
-            code if code.is_redirection() => {
-                Err(AppErrors::UnexpectedStatus(format!("Redirection status: {}", code)))
-            }
-            _ => {
-                Err(AppErrors::UnexpectedStatus(format!("Unexpected HTTP status: {}", status_code)))
-            }
+            code if code.is_redirection() => Err(AppErrors::UnexpectedStatus(format!(
+                "Redirection status: {}",
+                code
+            ))),
+            _ => Err(AppErrors::UnexpectedStatus(format!(
+                "Unexpected HTTP status: {}",
+                status_code
+            ))),
         }
     }
 

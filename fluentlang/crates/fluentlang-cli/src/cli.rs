@@ -4,8 +4,7 @@ use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
 use fluentlang_core::config_parsing::{
-    AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path,
-    set_config_data,
+    AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
 use fluentlang_core::error::AppErrors;
 
@@ -137,13 +136,28 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
     //When we have config data we send request to the corresponding provider.
     match config_data.current_provider {
         AvailableAiProviders::GroqCloud => {
-            println!("{}", GroqAPI::send_request(sentence, config_data.groq_cloud.private).await?.content);
+            println!(
+                "{}",
+                GroqAPI::send_request(sentence, config_data.groq_cloud.private)
+                    .await?
+                    .content
+            );
         }
         AvailableAiProviders::GoogleAiStudio => {
-            println!("{}",  GoogleAiStudioAPI::send_request(sentence, config_data.google_ai_studio.private).await?.content);
+            println!(
+                "{}",
+                GoogleAiStudioAPI::send_request(sentence, config_data.google_ai_studio.private)
+                    .await?
+                    .content
+            );
         }
         AvailableAiProviders::OpenRouter => {
-            println!("{}",  OpenRouterAPI::send_request(sentence, config_data.open_router.private).await?.content);
+            println!(
+                "{}",
+                OpenRouterAPI::send_request(sentence, config_data.open_router.private)
+                    .await?
+                    .content
+            );
         }
         AvailableAiProviders::CerebrasInference => {
             return Err(AppErrors::CurrentlyUnavailable);

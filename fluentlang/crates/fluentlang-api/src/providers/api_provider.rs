@@ -1,6 +1,6 @@
-﻿use reqwest::Response;
+﻿use crate::api_response::ApiResponse;
 use fluentlang_core::error::AppErrors;
-use crate::api_response::ApiResponse;
+use reqwest::Response;
 
 pub trait ApiProvider {
     #[allow(async_fn_in_trait)]
