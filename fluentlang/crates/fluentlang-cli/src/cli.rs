@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
-use fluentlang_api::api_provider::ApiProvider;
-use fluentlang_api::providers::google_ai_studio::GoogleAiStudio;
+use fluentlang_api::providers::api_provider::ApiProvider;
+use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
 use fluentlang_core::config_parsing::{
@@ -140,7 +140,7 @@ async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
             println!("{}", GroqAPI::send_request(sentence, config_data.groq_cloud.private).await?.content);
         }
         AvailableAiProviders::GoogleAiStudio => {
-            println!("{}",  GoogleAiStudio::send_request(sentence, config_data.google_ai_studio.private).await?.content);
+            println!("{}",  GoogleAiStudioAPI::send_request(sentence, config_data.google_ai_studio.private).await?.content);
         }
         AvailableAiProviders::OpenRouter => {
             println!("{}",  OpenRouterAPI::send_request(sentence, config_data.open_router.private).await?.content);

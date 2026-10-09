@@ -1,12 +1,18 @@
-﻿use reqwest::StatusCode;
+﻿use crate::api_response::ApiResponse;
+use crate::providers::api_provider::ApiProvider;
 use fluentlang_core::error::AppErrors;
+use reqwest::{Response, StatusCode};
 use serde_json::json;
-use crate::api_provider::ApiProvider;
-use crate::api_response::ApiResponse;
 
-pub struct GoogleAiStudio {}
+pub struct GoogleAiStudioAPI {}
 
-impl ApiProvider for GoogleAiStudio {
+impl GoogleAiStudioAPI {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl ApiProvider for GoogleAiStudioAPI {
     async fn send_request(sentence: String, private_key: String) -> Result<ApiResponse, AppErrors> {
         let body = json!({
             "system_instruction": {
@@ -40,15 +46,7 @@ impl ApiProvider for GoogleAiStudio {
         let status_code = response.status();
         match status_code {
             StatusCode::OK => {
-                let json_value: serde_json::Value = response.json().await?;
-
-                let content = json_value
-                    .pointer("/candidates/0/content/parts/0/text")
-                    .and_then(|v| v.as_str())
-                    .ok_or(AppErrors::InappropriateJsonResponse)?
-                    .to_string();
-
-                Ok(ApiResponse::new(content))
+                Ok(Self::parse_to_response(response).await?)
             }
             code if code.is_client_error() => {
                 Err(AppErrors::ClientErrorApi(status_code.to_string()))
@@ -63,5 +61,17 @@ impl ApiProvider for GoogleAiStudio {
                 Err(AppErrors::UnexpectedStatus(format!("Unexpected HTTP status: {}", status_code)))
             }
         }
+    }
+
+    async fn parse_to_response(response: Response) -> Result<ApiResponse, AppErrors> {
+        let json_value: serde_json::Value = response.json().await?;
+
+        let content = json_value
+            .pointer("/candidates/0/content/parts/0/text")
+            .and_then(|v| v.as_str())
+            .ok_or(AppErrors::InappropriateJsonResponse)?
+            .to_string();
+
+        Ok(ApiResponse::new(content))
     }
 }
