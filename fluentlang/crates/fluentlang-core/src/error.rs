@@ -12,4 +12,21 @@ pub enum AppErrors {
     ConfigIOProblem(#[from] std::io::Error),
     #[error("Can't find path to the config file.")]
     CantFindPathToConfigFile,
+    #[error("Current provider is not chosen. Please chose a provider.")]
+    ProviderIsNotChosen,
+    #[error("Current provider is unknown. Please enter current provider again.")]
+    UnknowProvider,
+
+    #[error("There is inappropriate provider's json file.")]
+    InappropriateJsonResponse,
+
+    // Network Errors
+    #[error("There is a NetWork error. Pleas try again.")]
+    NetworkError(#[from] reqwest::Error),
+    #[error("Client error: {0}")]
+    ClientErrorApi(String),
+    #[error("Server error: {0}")]
+    ServerErrorApi(String),
+    #[error("{0}")]
+    UnexpectedStatus(String),
 }

@@ -7,7 +7,6 @@ edition = "2024"
 
 [dependencies]
 fluentlang-core = { path = "../fluentlang-core" }
+fluentlang-api = { path = "../fluentlang-api" }
 clap = { workspace = true, features = ["derive"] }
-serde = { workspace = true, features = ["derive"] }
-dirs = { workspace = true }
-serde_json = { workspace = true }
+tokio = { version = "1.53.1", features = ["rt", "rt-multi-thread", "macros"] }
