@@ -1,20 +1,19 @@
-﻿use crate::api_response::ApiResponse;
-use crate::providers::api_provider::ApiProvider;
-use fluentlang_core::error::AppErrors;
-use reqwest::{Response, StatusCode};
-use serde_json::json;
+﻿use crate::providers::api_build_request::ApiBuildRequest;
+use crate::providers::api_metadata::ApiMetaData;
+use crate::providers::api_parse::ApiParse;
+use reqwest::RequestBuilder;
+use serde_json::{Value, json};
 
+#[derive(Default)]
 pub struct OpenRouterAPI {}
 
-impl OpenRouterAPI {
-    pub fn new() -> Self {
-        Self {}
+impl ApiMetaData for OpenRouterAPI {
+    fn url(&self) -> String {
+        "https://openrouter.ai/api/v1/chat/completions".to_string()
     }
-}
 
-impl ApiProvider for OpenRouterAPI {
-    async fn send_request(sentence: String, private_key: String) -> Result<ApiResponse, AppErrors> {
-        let body = json!({
+    fn body(&self, sentence: &str) -> Value {
+        json!({
             "model": "apodex/apodex-1.1-mini:free",
             "messages": [
               {
@@ -32,45 +31,21 @@ impl ApiProvider for OpenRouterAPI {
             "reasoning": {
               "enabled": true
             }
-        });
-
-        let response = reqwest::Client::new()
-            .post("https://openrouter.ai/api/v1/chat/completions")
-            .header("Content-Type", "application/json")
-            .header("Authorization", format!("Bearer {}", private_key))
-            .json(&body)
-            .send()
-            .await?;
-
-        let status_code = response.status();
-        match status_code {
-            StatusCode::OK => Ok(Self::parse_to_response(response).await?),
-            code if code.is_client_error() => {
-                Err(AppErrors::ClientErrorApi(status_code.to_string()))
-            }
-            code if code.is_server_error() => {
-                Err(AppErrors::ServerErrorApi(status_code.to_string()))
-            }
-            code if code.is_redirection() => Err(AppErrors::UnexpectedStatus(format!(
-                "Redirection status: {}",
-                code
-            ))),
-            _ => Err(AppErrors::UnexpectedStatus(format!(
-                "Unexpected HTTP status: {}",
-                status_code
-            ))),
-        }
+        })
     }
+}
 
-    async fn parse_to_response(response: Response) -> Result<ApiResponse, AppErrors> {
-        let json_value: serde_json::Value = response.json().await?;
+impl ApiBuildRequest for OpenRouterAPI {
+    fn build_request(&self, key: &str) -> RequestBuilder {
+        reqwest::Client::new()
+            .post(self.url())
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", key))
+    }
+}
 
-        let content = json_value
-            .pointer("/choices/0/message/content")
-            .and_then(|v| v.as_str())
-            .ok_or(AppErrors::InappropriateJsonResponse)?
-            .to_string();
-
-        Ok(ApiResponse::new(content))
+impl ApiParse for OpenRouterAPI {
+    fn json_content_rout(&self) -> String {
+        "/choices/0/message/content".to_string()
     }
 }

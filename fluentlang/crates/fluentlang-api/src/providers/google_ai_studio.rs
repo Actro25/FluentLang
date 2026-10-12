@@ -1,20 +1,19 @@
-﻿use crate::api_response::ApiResponse;
-use crate::providers::api_provider::ApiProvider;
-use fluentlang_core::error::AppErrors;
-use reqwest::{Response, StatusCode};
-use serde_json::json;
+﻿use crate::providers::api_build_request::ApiBuildRequest;
+use crate::providers::api_metadata::ApiMetaData;
+use crate::providers::api_parse::ApiParse;
+use reqwest::RequestBuilder;
+use serde_json::{Value, json};
 
+#[derive(Default)]
 pub struct GoogleAiStudioAPI {}
 
-impl GoogleAiStudioAPI {
-    pub fn new() -> Self {
-        Self {}
+impl ApiMetaData for GoogleAiStudioAPI {
+    fn url(&self) -> String {
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={}".to_string()
     }
-}
 
-impl ApiProvider for GoogleAiStudioAPI {
-    async fn send_request(sentence: String, private_key: String) -> Result<ApiResponse, AppErrors> {
-        let body = json!({
+    fn body(&self, sentence: &str) -> Value {
+        json!({
             "system_instruction": {
                 "parts": [
                     {
@@ -34,44 +33,20 @@ impl ApiProvider for GoogleAiStudioAPI {
                     ]
                 }
             ]
-        });
-
-        let response = reqwest::Client::new()
-            .post(format!("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={}", private_key))
-            .header("Content-Type", "application/json")
-            .json(&body)
-            .send()
-            .await?;
-
-        let status_code = response.status();
-        match status_code {
-            StatusCode::OK => Ok(Self::parse_to_response(response).await?),
-            code if code.is_client_error() => {
-                Err(AppErrors::ClientErrorApi(status_code.to_string()))
-            }
-            code if code.is_server_error() => {
-                Err(AppErrors::ServerErrorApi(status_code.to_string()))
-            }
-            code if code.is_redirection() => Err(AppErrors::UnexpectedStatus(format!(
-                "Redirection status: {}",
-                code
-            ))),
-            _ => Err(AppErrors::UnexpectedStatus(format!(
-                "Unexpected HTTP status: {}",
-                status_code
-            ))),
-        }
+        })
     }
+}
 
-    async fn parse_to_response(response: Response) -> Result<ApiResponse, AppErrors> {
-        let json_value: serde_json::Value = response.json().await?;
+impl ApiBuildRequest for GoogleAiStudioAPI {
+    fn build_request(&self, key: &str) -> RequestBuilder {
+        reqwest::Client::new()
+            .post(format!("{}?key={}", self.url(), key))
+            .header("Content-Type", "application/json")
+    }
+}
 
-        let content = json_value
-            .pointer("/candidates/0/content/parts/0/text")
-            .and_then(|v| v.as_str())
-            .ok_or(AppErrors::InappropriateJsonResponse)?
-            .to_string();
-
-        Ok(ApiResponse::new(content))
+impl ApiParse for GoogleAiStudioAPI {
+    fn json_content_rout(&self) -> String {
+        "/choices/0/message/content".to_string()
     }
 }
