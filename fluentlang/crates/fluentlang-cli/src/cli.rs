@@ -114,10 +114,10 @@ pub enum Providers {
 impl Cli {
     pub async fn process_command(self) -> Result<(), AppErrors> {
         match self {
-            Cli::Sentence { sentence, .. } => cli_sentence_command(sentence).await?,
+            Cli::Sentence { sentence, .. } => sentence_command(sentence).await?,
             Cli::Config { command, .. } => match command {
                 None => show_config_data()?,
-                Some(command) => cli_config_command(command)?,
+                Some(command) => config_command(command)?,
             },
         }
 
@@ -125,7 +125,8 @@ impl Cli {
     }
 }
 
-async fn cli_sentence_command(sentence: String) -> Result<(), AppErrors> {
+///This function sends request to the chosen provider from the config file.
+async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     //Firstly, we have to get what the current provider is.
     let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
         Ok(data) => data,
@@ -156,7 +157,8 @@ fn get_private_key(config_data: &OutputData) -> String {
     }
 }
 
-fn cli_config_command(command: ConfigCommands) -> Result<(), AppErrors> {
+///This function writes the data into the config file.
+fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     match command {
         ConfigCommands::Set { key, value } => {
             let input = match key {
@@ -197,16 +199,31 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("Current Active Provider: {:?}\n", output.current_provider);
 
     println!("--- Groq Cloud ---");
-    println!("  Private: {}", output.groq_cloud.private);
+    println!("  Private: {}", translate_into_hidden(output.groq_cloud.private));
 
     println!("\n--- Google AI Studio ---");
-    println!("  Private: {}", output.google_ai_studio.private);
+    println!("  Private: {}", translate_into_hidden(output.google_ai_studio.private));
 
     println!("\n--- Open Router ---");
-    println!("  Private: {}", output.open_router.private);
+    println!("  Private: {}", translate_into_hidden(output.open_router.private));
 
     println!("\n--- Cerebras Inference ---");
-    println!("  Private: {}", output.cerebras_inference.private);
+    println!("  Private: {}", translate_into_hidden(output.cerebras_inference.private));
 
     Ok(())
+}
+
+fn translate_into_hidden(key: String) -> String {
+    let percent_of_shown = 10;
+    let to_show = key.len() / percent_of_shown;
+
+    let mut result: Vec<char> = key.chars().collect();
+
+    let mut index = to_show;
+    while index < result.len() {
+        result[index] = '*';
+        index += 1;
+    }
+
+    result.into_iter().collect()
 }

@@ -9,4 +9,4 @@ edition = "2024"
 fluentlang-core = { path = "../fluentlang-core" }
 fluentlang-api = { path = "../fluentlang-api" }
 clap = { workspace = true, features = ["derive"] }
-tokio = { version = "1.53.1", features = ["rt", "rt-multi-thread", "macros"] }
+tokio = { workspace = true }
