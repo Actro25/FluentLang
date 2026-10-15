@@ -1,5 +1,5 @@
 ﻿use crate::providers::api_build_request::ApiBuildRequest;
-use crate::providers::api_metadata::ApiMetaData;
+use crate::providers::api_metadata::{ApiMetaData, PROMPT};
 use crate::providers::api_parse::ApiParse;
 use reqwest::RequestBuilder;
 use serde_json::{Value, json};
@@ -8,8 +8,8 @@ use serde_json::{Value, json};
 pub struct GoogleAiStudioAPI {}
 
 impl ApiMetaData for GoogleAiStudioAPI {
-    fn url(&self) -> String {
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={}".to_string()
+    fn url(&self) -> &str {
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
     }
 
     fn body(&self, sentence: &str) -> Value {
@@ -17,10 +17,7 @@ impl ApiMetaData for GoogleAiStudioAPI {
             "system_instruction": {
                 "parts": [
                     {
-                        "text": "You are a professional language assistant for the language in the \
-                        sentence below. You must analyze the grammar used in the sentence and point \
-                        out any errors, if there are any. Respond concisely, in no more than 5 sentences, \
-                        and only in the language of the sentence below."
+                        "text": PROMPT
                     }
                 ]
             },
@@ -46,7 +43,7 @@ impl ApiBuildRequest for GoogleAiStudioAPI {
 }
 
 impl ApiParse for GoogleAiStudioAPI {
-    fn json_content_rout(&self) -> String {
+    fn json_content_route(&self) -> String {
         "/choices/0/message/content".to_string()
     }
 }

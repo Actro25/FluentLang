@@ -1,3 +1,4 @@
 ﻿pub trait ApiParse {
-    fn json_content_rout(&self) -> String;
+    /// This function returns route to get content from a JSON file that was returned from server.
+    fn json_content_route(&self) -> String;
 }

@@ -1,11 +1,19 @@
 ﻿use crate::api_response::ApiResponse;
 use crate::providers::api_build_request::ApiBuildRequest;
-use crate::providers::api_metadata::ApiMetaData;
 use crate::providers::api_parse::ApiParse;
 use fluentlang_core::error::AppErrors;
 use reqwest::{Response, StatusCode};
 
-pub async fn get_response<P: ApiMetaData + ApiBuildRequest + ApiParse>(
+pub trait ApiSender: ApiBuildRequest + ApiParse {}
+
+/// Here we are saying that if ApiBuildRequest and ApiParse implemented for T then ApiSender also implemented.
+impl<T: ApiBuildRequest + ApiParse> ApiSender for T {}
+
+/// This function returns ApiResponse struct that builds from api answer.
+/// The function gets provider that has to implement all expected traits.
+/// The function gets sentence to send to server.
+/// The function gets private key for the provider.
+pub async fn get_response<P: ApiSender>(
     provider: P,
     sentence: String,
     key: String,
@@ -19,7 +27,7 @@ pub async fn get_response<P: ApiMetaData + ApiBuildRequest + ApiParse>(
     let status_code = response.status();
     match status_code {
         StatusCode::OK => {
-            Ok(parse_to_response(response, provider.json_content_rout()).await?)
+            Ok(parse_to_response(response, provider.json_content_route()).await?)
         }
         code if code.is_client_error() => {
             Err(AppErrors::ClientErrorApi(status_code.to_string()))

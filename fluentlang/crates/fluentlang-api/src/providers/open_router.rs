@@ -1,5 +1,5 @@
 ﻿use crate::providers::api_build_request::ApiBuildRequest;
-use crate::providers::api_metadata::ApiMetaData;
+use crate::providers::api_metadata::{ApiMetaData, PROMPT};
 use crate::providers::api_parse::ApiParse;
 use reqwest::RequestBuilder;
 use serde_json::{Value, json};
@@ -8,8 +8,8 @@ use serde_json::{Value, json};
 pub struct OpenRouterAPI {}
 
 impl ApiMetaData for OpenRouterAPI {
-    fn url(&self) -> String {
-        "https://openrouter.ai/api/v1/chat/completions".to_string()
+    fn url(&self) -> &str {
+        "https://openrouter.ai/api/v1/chat/completions"
     }
 
     fn body(&self, sentence: &str) -> Value {
@@ -18,10 +18,7 @@ impl ApiMetaData for OpenRouterAPI {
             "messages": [
               {
                 "role": "system",
-                "content": "You are a professional language assistant for the language in the \
-                sentence below. You must analyze the grammar used in the sentence and point \
-                out any errors, if there are any. Respond concisely, in no more than 5 sentences, \
-                and only in the language of the sentence below."
+                "content": PROMPT
               },
               {
                 "role": "user",
@@ -45,7 +42,7 @@ impl ApiBuildRequest for OpenRouterAPI {
 }
 
 impl ApiParse for OpenRouterAPI {
-    fn json_content_rout(&self) -> String {
+    fn json_content_route(&self) -> String {
         "/choices/0/message/content".to_string()
     }
 }
