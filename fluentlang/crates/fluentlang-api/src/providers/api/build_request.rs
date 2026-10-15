@@ -1,5 +1,5 @@
-﻿use reqwest::RequestBuilder;
-use crate::providers::api_metadata::ApiMetaData;
+﻿use crate::providers::api::metadata::ApiMetaData;
+use reqwest::RequestBuilder;
 
 /// This trait was created to build requests to servers.
 /// ApiMetaData needs for input data as body, url etc.

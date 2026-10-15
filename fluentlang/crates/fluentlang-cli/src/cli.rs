@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand, ValueEnum};
+use fluentlang_api::provider_response::get_response;
 use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
@@ -6,7 +7,6 @@ use fluentlang_core::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
 use fluentlang_core::error::AppErrors;
-use fluentlang_api::provider_response::get_response;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -136,12 +136,31 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
 
     //When we have config data we send request to the corresponding provider.
     match config_data.current_provider {
-        AvailableAiProviders::GroqCloud => println!("{}", get_response(GroqAPI::default(), sentence, get_private_key(&config_data)).await?),
-        AvailableAiProviders::GoogleAiStudio => println!("{}", get_response(GoogleAiStudioAPI::default(), sentence, get_private_key(&config_data)).await?),
-        AvailableAiProviders::OpenRouter => println!("{}", get_response(OpenRouterAPI::default(), sentence, get_private_key(&config_data)).await?),
+        AvailableAiProviders::GroqCloud => println!(
+            "{}",
+            get_response(GroqAPI::default(), sentence, get_private_key(&config_data)).await?
+        ),
+        AvailableAiProviders::GoogleAiStudio => println!(
+            "{}",
+            get_response(
+                GoogleAiStudioAPI::default(),
+                sentence,
+                get_private_key(&config_data)
+            )
+            .await?
+        ),
+        AvailableAiProviders::OpenRouter => println!(
+            "{}",
+            get_response(
+                OpenRouterAPI::default(),
+                sentence,
+                get_private_key(&config_data)
+            )
+            .await?
+        ),
         AvailableAiProviders::CerebrasInference => return Err(AppErrors::CurrentlyUnavailable),
         AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
-        AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen)
+        AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
 
     Ok(())
@@ -153,7 +172,7 @@ fn get_private_key(config_data: &OutputData) -> String {
         AvailableAiProviders::GoogleAiStudio => config_data.google_ai_studio.private.clone(),
         AvailableAiProviders::OpenRouter => config_data.open_router.private.clone(),
         AvailableAiProviders::CerebrasInference => config_data.cerebras_inference.private.clone(),
-        _ => "".to_string()
+        _ => "".to_string(),
     }
 }
 
@@ -199,16 +218,28 @@ pub fn show_config_data() -> Result<(), AppErrors> {
     println!("Current Active Provider: {:?}\n", output.current_provider);
 
     println!("--- Groq Cloud ---");
-    println!("  Private: {}", translate_into_hidden(output.groq_cloud.private));
+    println!(
+        "  Private: {}",
+        translate_into_hidden(output.groq_cloud.private)
+    );
 
     println!("\n--- Google AI Studio ---");
-    println!("  Private: {}", translate_into_hidden(output.google_ai_studio.private));
+    println!(
+        "  Private: {}",
+        translate_into_hidden(output.google_ai_studio.private)
+    );
 
     println!("\n--- Open Router ---");
-    println!("  Private: {}", translate_into_hidden(output.open_router.private));
+    println!(
+        "  Private: {}",
+        translate_into_hidden(output.open_router.private)
+    );
 
     println!("\n--- Cerebras Inference ---");
-    println!("  Private: {}", translate_into_hidden(output.cerebras_inference.private));
+    println!(
+        "  Private: {}",
+        translate_into_hidden(output.cerebras_inference.private)
+    );
 
     Ok(())
 }

@@ -1,6 +1,6 @@
-﻿use crate::providers::api_build_request::ApiBuildRequest;
-use crate::providers::api_metadata::{ApiMetaData, PROMPT};
-use crate::providers::api_parse::ApiParse;
+﻿use crate::providers::api::build_request::ApiBuildRequest;
+use crate::providers::api::metadata::{ApiMetaData, PROMPT};
+use crate::providers::api::parse::ApiParse;
 use reqwest::RequestBuilder;
 use serde_json::{Value, json};
 
