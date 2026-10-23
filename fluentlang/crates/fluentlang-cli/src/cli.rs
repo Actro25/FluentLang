@@ -7,6 +7,8 @@ use fluentlang_core::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
 use fluentlang_core::error::AppErrors;
+use fluentlang_printing::app_print::print_status;
+use fluentlang_printing::art::fl_art::FluentLangArts;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -135,33 +137,16 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     };
 
     //When we have config data we send request to the corresponding provider.
-    match config_data.current_provider {
-        AvailableAiProviders::GroqCloud => println!(
-            "{}",
-            get_response(GroqAPI::default(), sentence, get_private_key(&config_data)).await?
-        ),
-        AvailableAiProviders::GoogleAiStudio => println!(
-            "{}",
-            get_response(
-                GoogleAiStudioAPI::default(),
-                sentence,
-                get_private_key(&config_data)
-            )
-            .await?
-        ),
-        AvailableAiProviders::OpenRouter => println!(
-            "{}",
-            get_response(
-                OpenRouterAPI::default(),
-                sentence,
-                get_private_key(&config_data)
-            )
-            .await?
-        ),
+    let answer = match config_data.current_provider {
+        AvailableAiProviders::GroqCloud => get_response(GroqAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
+        AvailableAiProviders::GoogleAiStudio => get_response(GoogleAiStudioAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
+        AvailableAiProviders::OpenRouter => get_response(OpenRouterAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
         AvailableAiProviders::CerebrasInference => return Err(AppErrors::CurrentlyUnavailable),
         AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
+
+    print_status(FluentLangArts::default(), config_data.current_provider, sentence, answer)?;
 
     Ok(())
 }

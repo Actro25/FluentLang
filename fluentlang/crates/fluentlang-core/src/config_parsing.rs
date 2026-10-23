@@ -127,7 +127,7 @@ pub fn get_config_data(path: impl AsRef<Path>) -> Result<OutputData, AppErrors> 
                 Err(err) => Err(AppErrors::ConfigJsonProblem(err)),
             }
         }
-        Err(err) => Err(AppErrors::ConfigIOProblem(err)),
+        Err(err) => Err(AppErrors::IOProblem(err)),
     }
 }
 

@@ -8,5 +8,6 @@ edition = "2024"
 [dependencies]
 fluentlang-core = { path = "../fluentlang-core" }
 fluentlang-api = { path = "../fluentlang-api" }
+fluentlang-printing = { path = "../fluentlang-printing"}
 clap = { workspace = true, features = ["derive"] }
 tokio = { workspace = true }

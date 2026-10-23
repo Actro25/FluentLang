@@ -1,0 +1,10 @@
+﻿[package]
+name = "fluentlang-printing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fluentlang-core = { path = "../fluentlang-core" }
+termimad = { workspace = true }
+crossterm = { workspace = true }
+terminal-colorsaurus = { workspace = true }
