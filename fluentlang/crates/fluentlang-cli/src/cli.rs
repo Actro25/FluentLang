@@ -8,7 +8,6 @@ use fluentlang_core::config_parsing::{
 };
 use fluentlang_core::error::AppErrors;
 use fluentlang_printing::app_print::print_status;
-use fluentlang_printing::art::fl_art::FluentLangArts;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -146,7 +145,7 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
 
-    print_status(FluentLangArts::default(), config_data.current_provider, sentence, answer)?;
+    print_status(config_data.current_provider, sentence, answer)?;
 
     Ok(())
 }

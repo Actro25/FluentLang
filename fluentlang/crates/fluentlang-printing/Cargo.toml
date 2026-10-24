@@ -8,3 +8,4 @@ fluentlang-core = { path = "../fluentlang-core" }
 termimad = { workspace = true }
 crossterm = { workspace = true }
 terminal-colorsaurus = { workspace = true }
+comfy-table = { workspace = true }

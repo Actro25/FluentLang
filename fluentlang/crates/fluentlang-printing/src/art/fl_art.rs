@@ -1,7 +1,7 @@
 ﻿use std::sync::LazyLock;
 use crate::art::ArtDraw;
 
-static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
+pub(crate) static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
         r"______  _                  _        _".to_string(),
         r"| ____|| |_   _  ___ _ __ | |_     | |    __ _ _ __   __ _".to_string(),
@@ -11,7 +11,7 @@ static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
         r"                                                     |___/".to_string(),
     ]
 });
-static SMALL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
+pub(crate) static SMALL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
         r"    ______ _".to_string(),
         r"   | ____|| | ".to_string(),
