@@ -128,7 +128,9 @@ impl Cli {
     }
 }
 
-///This function sends request to the chosen provider from the config file.
+/// The function sends request to the current provider's API.
+/// 
+/// * `sentence` - a sentence that the user wants to know all about.
 async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     //Firstly, we have to get what the current provider is.
     let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
@@ -160,7 +162,9 @@ fn get_private_key(config_data: &OutputData) -> String {
     }
 }
 
-///This function writes the data into the config file.
+/// The function writes input data into the config file.
+/// 
+/// * `command` - an enum of the config subcommand.
 fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     match command {
         ConfigCommands::Set { key, value } => {

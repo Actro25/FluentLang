@@ -42,10 +42,11 @@ pub struct ApiKey {
     pub private: String
 }
 
-///This function set data into JSON config by path.
-///Initially, this function takes existed data (OutputData) in JSON file to not lost it.
-///Then the function set data into the struct (OutputData) by InputData struct.
-///This function also creates config.json
+/// The function sets data into JSON config by `path` and creates the config file if it doesn't exist.
+/// The config file is represented by JSON file.
+///
+/// * `path` - the path where the config file has to be.
+/// * `set_data` - a data that will be written in the config file.
 pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<(), AppErrors> {
     let path = path.as_ref();
     /*
@@ -100,8 +101,9 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
     Ok(())
 }
 
-///This function will return Error::ConfigFileDoesntExist if path returns false from function .exists().
-///If path exists it will return OutputData struct if the path exists and there isn't any io error.
+/// The function returns a data that was in the config file.
+///
+/// * `path` - the path where the config file has to be.
 pub fn get_config_data(path: impl AsRef<Path>) -> Result<OutputData, AppErrors> {
     let path = path.as_ref();
 

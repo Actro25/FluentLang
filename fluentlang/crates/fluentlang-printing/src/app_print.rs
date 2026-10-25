@@ -12,6 +12,13 @@ use terminal_colorsaurus::{QueryOptions, color_palette};
 pub struct FluentLangTable {}
 
 impl FluentLangTable {
+    /// The function was created for building an output for showing answer from a provider's API.
+    /// The function builds a table from components, and after it renders the table.
+    /// The table shows art component, status component, and chat component.
+    ///
+    /// * `provider` - current chosen provider.
+    /// * `sentence` - a sentence that was sent to the provider's API.
+    /// * `answer` - an answer from the provider's API.
     pub fn print_status(
         provider: AvailableAiProviders,
         sentence: String,
@@ -30,6 +37,11 @@ impl FluentLangTable {
         Ok(())
     }
 
+    /// The function was created for building an output for showing the config data.
+    /// The function builds a table from components, and after it renders the table.
+    /// The table shows art component, and config status component.
+    ///
+    /// * `output_data` - the config data.
     pub fn print_config_data(output_data: OutputData) -> Result<(), AppErrors> {
         let (width, _) = terminal::size()?;
 
@@ -44,6 +56,10 @@ impl FluentLangTable {
     }
 }
 
+/// The function was created for linking components together.
+/// The function builds component into [`Vec<String>`] to render a table.
+///
+/// * `components` - a list of components for building a table.
 fn show_table(components: Vec<Box<dyn TableComponent>>) -> Result<(), AppErrors> {
     let palette = color_palette(QueryOptions::default())?;
     let fg = Color::Rgb {
@@ -91,6 +107,11 @@ fn show_table(components: Vec<Box<dyn TableComponent>>) -> Result<(), AppErrors>
     Ok(())
 }
 
+/// The function was created for printing `res` using `fg` and `bg`.
+///
+/// * `res` - a ready list for rendering table.
+/// * `fg` - a color of the symbols.
+/// * `bg` - a color of the background in the terminal.
 fn render_table(res: Vec<String>, fg: Color, bg: Color) {
     for line in res {
         println!("{}", line.as_str().with(fg).on(bg));
