@@ -23,23 +23,19 @@ static SMALL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
 
 pub struct ArtComponent {
     component: Vec<String>,
-    width: usize
+    width: usize,
 }
 
 impl ArtComponent {
     pub fn new(terminal_width: u16) -> Self {
         Self {
             component: Vec::new(),
-            width: (terminal_width as usize).saturating_sub(2)
+            width: (terminal_width as usize).saturating_sub(2),
         }
     }
 
     fn get_art(&self) -> Vec<String> {
-        let full_art_max_width = FULL_ART
-            .iter()
-            .map(|l| l.chars().count())
-            .max()
-            .unwrap();
+        let full_art_max_width = FULL_ART.iter().map(|l| l.chars().count()).max().unwrap();
 
         if (self.width / full_art_max_width) as f64 > 1.5 {
             FULL_ART.clone()
@@ -73,18 +69,25 @@ impl TableComponent for ArtComponent {
     fn to_start_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
         result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
+        result.push(format!("├{}┤", "─".repeat(self.width)));
         result
     }
 
     fn to_middle_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
-        result.insert(0, format!("├{}┤", "─".repeat(self.width)));
         result.push(format!("├{}┤", "─".repeat(self.width)));
         result
     }
 
     fn to_end_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
+        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        result
+    }
+
+    fn to_solo_table(&self) -> Vec<String> {
+        let mut result = self.component.clone();
+        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
         result.push(format!("╰{}╯", "─".repeat(self.width)));
         result
     }

@@ -1,10 +1,10 @@
-﻿use fluentlang_core::config_parsing::AvailableAiProviders;
-use crate::table_components::TableComponent;
+﻿use crate::table_components::TableComponent;
+use fluentlang_core::config_parsing::AvailableAiProviders;
 
 pub struct StatusComponent {
     component: Vec<String>,
     width: usize,
-    provider: AvailableAiProviders
+    provider: AvailableAiProviders,
 }
 
 impl StatusComponent {
@@ -12,7 +12,7 @@ impl StatusComponent {
         Self {
             component: Vec::new(),
             width: (terminal_width as usize).saturating_sub(2),
-            provider
+            provider,
         }
     }
 }
@@ -37,18 +37,25 @@ impl TableComponent for StatusComponent {
     fn to_start_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
         result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
+        result.push(format!("├{}┤", "─".repeat(self.width)));
         result
     }
 
     fn to_middle_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
-        result.insert(0, format!("├{}┤", "─".repeat(self.width)));
         result.push(format!("├{}┤", "─".repeat(self.width)));
         result
     }
 
     fn to_end_of_table(&self) -> Vec<String> {
         let mut result = self.component.clone();
+        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        result
+    }
+
+    fn to_solo_table(&self) -> Vec<String> {
+        let mut result = self.component.clone();
+        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
         result.push(format!("╰{}╯", "─".repeat(self.width)));
         result
     }
