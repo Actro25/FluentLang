@@ -1,5 +1,6 @@
 ﻿use crate::table_components::TableComponent;
 use fluentlang_core::config_parsing::OutputData;
+use fluentlang_core::error::AppErrors;
 
 pub struct ConfigStatusComponent {
     component: Vec<String>,
@@ -53,7 +54,7 @@ impl ConfigStatusComponent {
 }
 
 impl TableComponent for ConfigStatusComponent {
-    fn get_component(mut self) -> Self
+    fn get_component(mut self) -> Result<Self, AppErrors>
     where
         Self: Sized,
     {
@@ -98,7 +99,7 @@ impl TableComponent for ConfigStatusComponent {
         );
         self.component.push(format!("│{}│", " ".repeat(self.width)));
 
-        self
+        Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {

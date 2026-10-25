@@ -1,5 +1,6 @@
 ﻿use crate::table_components::TableComponent;
 use fluentlang_core::config_parsing::AvailableAiProviders;
+use fluentlang_core::error::AppErrors;
 
 pub struct StatusComponent {
     component: Vec<String>,
@@ -18,7 +19,9 @@ impl StatusComponent {
 }
 
 impl TableComponent for StatusComponent {
-    fn get_component(mut self) -> Self {
+    fn get_component(mut self) -> Result<Self, AppErrors> {
+        self.component.push(format!("│{}│", " ".repeat(self.width)));
+
         let info_text = format!("Active AI Provider: {:?}", self.provider);
         let left_padding = " ".repeat(3);
         let right_padding = " ".repeat(self.width - info_text.chars().count() - left_padding.len());
@@ -31,7 +34,9 @@ impl TableComponent for StatusComponent {
         let ready_line = format!("│{}{}{}│", left_padding, info_text, right_padding);
         self.component.push(ready_line);
 
-        self
+        self.component.push(format!("│{}│", " ".repeat(self.width)));
+
+        Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {

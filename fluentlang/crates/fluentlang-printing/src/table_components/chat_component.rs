@@ -1,5 +1,6 @@
 ﻿use crate::table_components::TableComponent;
 use fluentlang_core::config_parsing::AvailableAiProviders;
+use fluentlang_core::error::AppErrors;
 
 const LEFT_PADDING: usize = 3;
 const RIGHT_PADDING: usize = 3;
@@ -29,7 +30,7 @@ impl ChatComponent {
         }
     }
 
-    fn push_wrapped_lines(&mut self, prefix: &str, text: &str) {
+    fn push_wrapped_lines(&mut self, prefix: &str, text: &str) -> Result<(), AppErrors> {
         let prefix_len = prefix.chars().count() + BEFORE_USER_PADDING;
         let available = self
             .width
@@ -40,7 +41,7 @@ impl ChatComponent {
         let next_prefix = " ".repeat(prefix_len);
 
         for (index, line) in self
-            .rebuild_into_lines(text, available)
+            .rebuild_into_lines(text, available)?
             .into_iter()
             .enumerate()
         {
@@ -61,16 +62,21 @@ impl ChatComponent {
                 " ".repeat(filler)
             ));
         }
+
+        Ok(())
     }
 
-    fn rebuild_into_lines(&self, text: &str, available_width: usize) -> Vec<String> {
+    fn rebuild_into_lines(&self, text: &str, available_width: usize) -> Result<Vec<String>, AppErrors> {
         let mut result: Vec<String> = Vec::new();
         for paragraph in text.lines() {
             let mut temporary_storage = String::new();
             let mut current_width: usize = 0;
 
             for word in paragraph.split_whitespace() {
-                // POSSIBLE PROBLEM: What if it's the first iteration and word has a len more than an available width?
+                if word.chars().count() > available_width {
+                    return Err(AppErrors::SizeTerminalProblem());
+                }
+
                 if current_width + word.chars().count() > available_width {
                     result.push(temporary_storage.clone());
                     temporary_storage = String::new();
@@ -88,26 +94,26 @@ impl ChatComponent {
             result.push(" ".repeat(available_width));
         }
 
-        result
+        Ok(result)
     }
 }
 
 impl TableComponent for ChatComponent {
-    fn get_component(mut self) -> Self {
+    fn get_component(mut self) -> Result<Self, AppErrors> {
         let empty_line = format!("│{}│", " ".repeat(self.width));
 
         self.component.push(empty_line.clone());
 
-        self.push_wrapped_lines("User: ", &format!("{:?}", self.sentence));
+        self.push_wrapped_lines("User: ", &format!("{:?}", self.sentence))?;
 
         self.component.push(empty_line.clone());
 
         let provider = format!("{:?}: ", self.provider);
-        self.push_wrapped_lines(&provider, self.answer.clone().as_str());
+        self.push_wrapped_lines(&provider, self.answer.clone().as_str())?;
 
         self.component.push(empty_line);
 
-        self
+        Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {

@@ -1,5 +1,6 @@
 ﻿use crate::table_components::TableComponent;
 use std::sync::LazyLock;
+use fluentlang_core::error::AppErrors;
 
 static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
@@ -46,7 +47,7 @@ impl ArtComponent {
 }
 
 impl TableComponent for ArtComponent {
-    fn get_component(mut self) -> Self {
+    fn get_component(mut self) -> Result<Self, AppErrors> {
         let mut current_art = self.get_art();
 
         let art_width = current_art.iter().map(|l| l.chars().count()).max().unwrap();
@@ -63,7 +64,7 @@ impl TableComponent for ArtComponent {
 
         self.component = current_art;
 
-        self
+        Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {

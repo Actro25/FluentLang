@@ -20,9 +20,9 @@ impl FluentLangTable {
         let (width, _) = terminal::size()?;
 
         let components: Vec<Box<dyn TableComponent>> = vec![
-            Box::new(ArtComponent::new(width).get_component()),
-            Box::new(StatusComponent::new(width, provider.clone()).get_component()),
-            Box::new(ChatComponent::new(width, provider, sentence, answer).get_component()),
+            Box::new(ArtComponent::new(width).get_component()?),
+            Box::new(StatusComponent::new(width, provider.clone()).get_component()?),
+            Box::new(ChatComponent::new(width, provider, sentence, answer).get_component()?),
         ];
 
         show_table(components)?;
@@ -34,8 +34,8 @@ impl FluentLangTable {
         let (width, _) = terminal::size()?;
 
         let components: Vec<Box<dyn TableComponent>> = vec![
-            Box::new(ArtComponent::new(width).get_component()),
-            Box::new(ConfigStatusComponent::new(width, output_data).get_component()),
+            Box::new(ArtComponent::new(width).get_component()?),
+            Box::new(ConfigStatusComponent::new(width, output_data).get_component()?),
         ];
 
         show_table(components)?;

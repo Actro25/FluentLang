@@ -23,6 +23,9 @@ pub enum AppErrors {
     #[error("There is a terminal problem: {0}")]
     ColorTerminalProblem(#[from] terminal_colorsaurus::Error),
 
+    #[error("There is a terminal problem: The terminal is too small to show the output. Please make the terminal bigger.")]
+    SizeTerminalProblem(),
+    
     // Network Errors
     #[error("There is a NetWork error: {0}")]
     NetworkError(#[from] reqwest::Error),

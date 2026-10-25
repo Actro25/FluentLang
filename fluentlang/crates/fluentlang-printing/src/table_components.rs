@@ -1,10 +1,12 @@
-﻿pub mod art_component;
+﻿use fluentlang_core::error::AppErrors;
+
+pub mod art_component;
 pub mod chat_component;
 pub mod status_component;
 pub mod config_status_component;
 
 pub trait TableComponent {
-    fn get_component(self) -> Self
+    fn get_component(self) -> Result<Self, AppErrors>
     where
         Self: Sized;
     fn to_start_of_table(&self) -> Vec<String>;
