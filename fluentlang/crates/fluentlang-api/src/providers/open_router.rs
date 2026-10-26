@@ -14,7 +14,7 @@ impl ApiMetaData for OpenRouterAPI {
 
     fn body(&self, sentence: &str) -> Value {
         json!({
-            "model": "apodex/apodex-1.1-mini:free",
+            "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
             "messages": [
               {
                 "role": "system",

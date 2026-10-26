@@ -1,10 +1,11 @@
-﻿use crate::table_components::TableComponent;
+﻿use termimad::crossterm::style::{Color, Stylize};
+use termimad::crossterm::terminal;
+use termimad::MadSkin;
+use crate::table_components::TableComponent;
 use crate::table_components::art_component::ArtComponent;
 use crate::table_components::chat_component::ChatComponent;
 use crate::table_components::config_status_component::ConfigStatusComponent;
 use crate::table_components::status_component::StatusComponent;
-use crossterm::style::{Color, Stylize};
-use crossterm::terminal;
 use fluentlang_core::config_parsing::{AvailableAiProviders, OutputData};
 use fluentlang_core::error::AppErrors;
 use terminal_colorsaurus::{QueryOptions, color_palette};
@@ -116,4 +117,23 @@ fn render_table(res: Vec<String>, fg: Color, bg: Color) {
     for line in res {
         println!("{}", line.as_str().with(fg).on(bg));
     }
+}
+
+pub fn get_skin() -> Result<MadSkin, AppErrors> {
+    let palette = color_palette(QueryOptions::default())?;
+    let fg = Color::Rgb {
+        r: 113,
+        g: 163,
+        b: 255,
+    };
+    let bg = Color::Rgb {
+        r: palette.background.r as u8,
+        g: palette.background.g as u8,
+        b: palette.background.b as u8,
+    };
+    let mut skin = MadSkin::default();
+    skin.set_bg(bg);
+    skin.set_fg(fg);
+    
+    Ok(skin)
 }

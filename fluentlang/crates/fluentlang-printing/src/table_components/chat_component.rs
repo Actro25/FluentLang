@@ -1,6 +1,9 @@
-﻿use crate::table_components::TableComponent;
+﻿use strip_ansi_escapes::strip;
+use termimad::FmtText;
+use crate::table_components::TableComponent;
 use fluentlang_core::config_parsing::AvailableAiProviders;
 use fluentlang_core::error::AppErrors;
+use crate::app_print::get_skin;
 
 const LEFT_PADDING: usize = 3;
 const RIGHT_PADDING: usize = 3;
@@ -40,19 +43,24 @@ impl ChatComponent {
         let first_prefix = format!("{}{}", prefix, " ".repeat(BEFORE_USER_PADDING));
         let next_prefix = " ".repeat(prefix_len);
 
-        for (index, line) in self
-            .rebuild_into_lines(text, available)?
-            .into_iter()
-            .enumerate()
-        {
+        let skin = get_skin()?;
+
+        let rendered_text = format!("{}", FmtText::from(&skin, text, Some(available)));
+
+        for (index, line) in rendered_text.lines().enumerate() {
             let lead = if index == 0 {
                 &first_prefix
             } else {
                 &next_prefix
             };
+
             let ready_line = format!("{}{}", lead, line);
 
-            let used = LEFT_PADDING + ready_line.chars().count();
+            let stripped_bytes = strip(&ready_line);
+            let clean_line = String::from_utf8_lossy(&stripped_bytes);
+            let visible_len = clean_line.chars().count();
+
+            let used = LEFT_PADDING + visible_len;
             let filler = self.width.saturating_sub(used);
 
             self.component.push(format!(
@@ -65,37 +73,6 @@ impl ChatComponent {
 
         Ok(())
     }
-
-    fn rebuild_into_lines(&self, text: &str, available_width: usize) -> Result<Vec<String>, AppErrors> {
-        let mut result: Vec<String> = Vec::new();
-        for paragraph in text.lines() {
-            let mut temporary_storage = String::new();
-            let mut current_width: usize = 0;
-
-            for word in paragraph.split_whitespace() {
-                if word.chars().count() > available_width {
-                    return Err(AppErrors::SizeTerminalProblem());
-                }
-
-                if current_width + word.chars().count() > available_width {
-                    result.push(temporary_storage.clone());
-                    temporary_storage = String::new();
-                    current_width = 0;
-                }
-
-                temporary_storage.push_str(format!("{} ", word).as_str());
-                current_width += word.chars().count() + 1;
-            }
-
-            if current_width != 0 {
-                result.push(temporary_storage.clone());
-            }
-
-            result.push(" ".repeat(available_width));
-        }
-
-        Ok(result)
-    }
 }
 
 impl TableComponent for ChatComponent {
@@ -104,7 +81,7 @@ impl TableComponent for ChatComponent {
 
         self.component.push(empty_line.clone());
 
-        self.push_wrapped_lines("User: ", &format!("{:?}", self.sentence))?;
+        self.push_wrapped_lines("User: ", &self.sentence.to_string())?;
 
         self.component.push(empty_line.clone());
 
