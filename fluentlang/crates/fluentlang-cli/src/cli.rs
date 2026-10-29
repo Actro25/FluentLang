@@ -7,7 +7,7 @@ use fluentlang_core::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
 use fluentlang_core::error::AppErrors;
-use fluentlang_printing::app_print::FluentLangTable;
+use fluentlang_printing::app_print::{print_config_data, print_status};
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -118,8 +118,8 @@ impl Cli {
                         Err(err) => return Err(err),
                     };
 
-                    FluentLangTable::print_config_data(config_data)?;
-                },
+                    print_config_data(config_data)?;
+                }
                 Some(command) => config_command(command)?,
             },
         }
@@ -129,7 +129,7 @@ impl Cli {
 }
 
 /// The function sends request to the current provider's API.
-/// 
+///
 /// * `sentence` - a sentence that the user wants to know all about.
 async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     //Firstly, we have to get what the current provider is.
@@ -141,14 +141,35 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
 
     //When we have config data we send request to the corresponding provider.
     let answer = match config_data.current_provider {
-        AvailableAiProviders::GroqCloud => get_response(GroqAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
-        AvailableAiProviders::GoogleAiStudio => get_response(GoogleAiStudioAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
-        AvailableAiProviders::OpenRouter => get_response(OpenRouterAPI::default(), sentence.clone(), get_private_key(&config_data)).await?,
+        AvailableAiProviders::GroqCloud => {
+            get_response(
+                GroqAPI::default(),
+                sentence.clone(),
+                get_private_key(&config_data),
+            )
+            .await?
+        }
+        AvailableAiProviders::GoogleAiStudio => {
+            get_response(
+                GoogleAiStudioAPI::default(),
+                sentence.clone(),
+                get_private_key(&config_data),
+            )
+            .await?
+        }
+        AvailableAiProviders::OpenRouter => {
+            get_response(
+                OpenRouterAPI::default(),
+                sentence.clone(),
+                get_private_key(&config_data),
+            )
+            .await?
+        }
         AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
 
-    FluentLangTable::print_status(config_data.current_provider, sentence, answer)?;
+    print_status(config_data.current_provider, sentence, answer)?;
 
     Ok(())
 }
@@ -163,7 +184,7 @@ fn get_private_key(config_data: &OutputData) -> String {
 }
 
 /// The function writes input data into the config file.
-/// 
+///
 /// * `command` - an enum of the config subcommand.
 fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     match command {
