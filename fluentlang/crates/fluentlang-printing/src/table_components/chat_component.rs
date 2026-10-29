@@ -1,17 +1,14 @@
-﻿use strip_ansi_escapes::strip;
-use termimad::FmtText;
-use crate::table_components::TableComponent;
+﻿use crate::app_print::get_skin;
+use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
 use fluentlang_core::config_parsing::AvailableAiProviders;
 use fluentlang_core::error::AppErrors;
-use crate::app_print::get_skin;
+use strip_ansi_escapes::strip;
+use termimad::FmtText;
 
-const LEFT_PADDING: usize = 3;
-const RIGHT_PADDING: usize = 3;
 const BEFORE_USER_PADDING: usize = 1;
 
 pub struct ChatComponent {
-    component: Vec<String>,
-    width: usize,
+    data: NecessaryDataTable,
     provider: AvailableAiProviders,
     sentence: String,
     answer: String,
@@ -23,10 +20,14 @@ impl ChatComponent {
         provider: AvailableAiProviders,
         sentence: String,
         answer: String,
+        padding: Paddings
     ) -> Self {
         Self {
-            component: Vec::new(),
-            width: (terminal_width as usize).saturating_sub(2),
+            data: NecessaryDataTable {
+                component: vec![],
+                terminal_inner_width: (terminal_width as usize).saturating_sub(2),
+                padding,
+            },
             provider,
             sentence,
             answer,
@@ -36,8 +37,9 @@ impl ChatComponent {
     fn push_wrapped_lines(&mut self, prefix: &str, text: &str) -> Result<(), AppErrors> {
         let prefix_len = prefix.chars().count() + BEFORE_USER_PADDING;
         let available = self
-            .width
-            .saturating_sub(LEFT_PADDING + RIGHT_PADDING + prefix_len)
+            .data
+            .terminal_inner_width
+            .saturating_sub(self.data.padding.left + self.data.padding.right + prefix_len)
             .max(1);
 
         let first_prefix = format!("{}{}", prefix, " ".repeat(BEFORE_USER_PADDING));
@@ -60,12 +62,12 @@ impl ChatComponent {
             let clean_line = String::from_utf8_lossy(&stripped_bytes);
             let visible_len = clean_line.chars().count();
 
-            let used = LEFT_PADDING + visible_len;
-            let filler = self.width.saturating_sub(used);
+            let used = self.data.padding.left + visible_len;
+            let filler = self.data.terminal_inner_width.saturating_sub(used);
 
-            self.component.push(format!(
+            self.data.component.push(format!(
                 "│{}{}{}│",
-                " ".repeat(LEFT_PADDING),
+                " ".repeat(self.data.padding.left),
                 ready_line,
                 " ".repeat(filler)
             ));
@@ -77,45 +79,55 @@ impl ChatComponent {
 
 impl TableComponent for ChatComponent {
     fn get_component(mut self) -> Result<Self, AppErrors> {
-        let empty_line = format!("│{}│", " ".repeat(self.width));
+        let empty_line = format!("│{}│", " ".repeat(self.data.terminal_inner_width));
 
-        self.component.push(empty_line.clone());
+        for _ in 0..self.data.padding.top {
+            self.data.component.push(empty_line.clone());
+        }
 
         self.push_wrapped_lines("User: ", &self.sentence.to_string())?;
 
-        self.component.push(empty_line.clone());
+        self.data.component.push(empty_line.clone());
 
         let provider = format!("{:?}: ", self.provider);
         self.push_wrapped_lines(&provider, self.answer.clone().as_str())?;
 
-        self.component.push(empty_line);
+        for _ in 0..self.data.padding.bottom {
+            self.data.component.push(empty_line.clone());
+        }
 
         Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
-        result.push(format!("├{}┤", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.insert(
+            0,
+            format!("╭{}╮", "─".repeat(self.data.terminal_inner_width)),
+        );
+        result.push(format!("├{}┤", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_middle_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.push(format!("├{}┤", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.push(format!("├{}┤", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_end_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.push(format!("╰{}╯", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_solo_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
-        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.insert(
+            0,
+            format!("╭{}╮", "─".repeat(self.data.terminal_inner_width)),
+        );
+        result.push(format!("╰{}╯", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 }

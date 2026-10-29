@@ -1,8 +1,8 @@
-﻿use crate::table_components::TableComponent;
-use crate::table_components::art_component::ArtComponent;
+﻿use crate::table_components::art_component::ArtComponent;
 use crate::table_components::chat_component::ChatComponent;
 use crate::table_components::config_status_component::ConfigStatusComponent;
 use crate::table_components::status_component::StatusComponent;
+use crate::table_components::{Paddings, TableComponent};
 use crate::tables::Table;
 use crate::tables::fluent_lang_table::FluentLangTable;
 use fluentlang_core::config_parsing::{AvailableAiProviders, OutputData};
@@ -23,6 +23,7 @@ pub fn print_status(
     provider: AvailableAiProviders,
     sentence: String,
     answer: String,
+    table_paddings: Paddings,
 ) -> Result<(), AppErrors> {
     let (width, _) = terminal::size()?;
     let palette = color_palette(QueryOptions::default())?;
@@ -38,12 +39,16 @@ pub fn print_status(
     };
 
     FluentLangTable::default()
-        .add_component(Box::new(ArtComponent::new(width).get_component()?))
         .add_component(Box::new(
-            StatusComponent::new(width, provider.clone()).get_component()?,
+            ArtComponent::new(width, table_paddings.clone()).get_component()?,
         ))
         .add_component(Box::new(
-            ChatComponent::new(width, provider, sentence, answer).get_component()?,
+            StatusComponent::new(width, provider.clone(), table_paddings.clone())
+                .get_component()?,
+        ))
+        .add_component(Box::new(
+            ChatComponent::new(width, provider, sentence, answer, table_paddings)
+                .get_component()?,
         ))
         .render(fg, bg);
 
@@ -55,7 +60,10 @@ pub fn print_status(
 /// The table shows art component, and config status component.
 ///
 /// * `output_data` - the config data.
-pub fn print_config_data(output_data: OutputData) -> Result<(), AppErrors> {
+pub fn print_config_data(
+    output_data: OutputData,
+    table_paddings: Paddings,
+) -> Result<(), AppErrors> {
     let (width, _) = terminal::size()?;
 
     let palette = color_palette(QueryOptions::default())?;
@@ -71,9 +79,11 @@ pub fn print_config_data(output_data: OutputData) -> Result<(), AppErrors> {
     };
 
     FluentLangTable::default()
-        .add_component(Box::new(ArtComponent::new(width).get_component()?))
         .add_component(Box::new(
-            ConfigStatusComponent::new(width, output_data).get_component()?,
+            ArtComponent::new(width, table_paddings.clone()).get_component()?,
+        ))
+        .add_component(Box::new(
+            ConfigStatusComponent::new(width, output_data, table_paddings).get_component()?,
         ))
         .render(fg, bg);
 

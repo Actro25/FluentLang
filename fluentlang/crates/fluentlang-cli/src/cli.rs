@@ -8,6 +8,7 @@ use fluentlang_core::config_parsing::{
 };
 use fluentlang_core::error::AppErrors;
 use fluentlang_printing::app_print::{print_config_data, print_status};
+use fluentlang_printing::table_components::Paddings;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -118,7 +119,14 @@ impl Cli {
                         Err(err) => return Err(err),
                     };
 
-                    print_config_data(config_data)?;
+                    let paddings: Paddings = Paddings {
+                        left: 5,
+                        right: 5,
+                        top: 1,
+                        bottom: 1
+                    };
+
+                    print_config_data(config_data, paddings)?;
                 }
                 Some(command) => config_command(command)?,
             },
@@ -168,8 +176,15 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
         AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
+    
+    let paddings: Paddings = Paddings {
+        left: 5,
+        right: 5,
+        top: 1,
+        bottom: 1
+    };
 
-    print_status(config_data.current_provider, sentence, answer)?;
+    print_status(config_data.current_provider, sentence, answer, paddings)?;
 
     Ok(())
 }

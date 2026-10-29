@@ -1,6 +1,6 @@
-﻿use crate::table_components::TableComponent;
-use std::sync::LazyLock;
+﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
 use fluentlang_core::error::AppErrors;
+use std::sync::LazyLock;
 
 static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
@@ -23,22 +23,30 @@ static SMALL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
 });
 
 pub struct ArtComponent {
-    component: Vec<String>,
-    width: usize,
+    data: NecessaryDataTable,
 }
 
 impl ArtComponent {
-    pub fn new(terminal_width: u16) -> Self {
+    pub fn new(terminal_width: u16, padding: Paddings) -> Self {
         Self {
-            component: Vec::new(),
-            width: (terminal_width as usize).saturating_sub(2),
+            data: NecessaryDataTable {
+                component: vec![],
+                terminal_inner_width: (terminal_width as usize).saturating_sub(2),
+                padding,
+            },
         }
     }
 
     fn get_art(&self) -> Vec<String> {
         let full_art_max_width = FULL_ART.iter().map(|l| l.chars().count()).max().unwrap();
 
-        if (self.width / full_art_max_width) as f64 > 1.5 {
+        if (self
+            .data
+            .terminal_inner_width
+            .saturating_sub(self.data.padding.right + self.data.padding.left)
+            / full_art_max_width) as f64
+            > 1.5
+        {
             FULL_ART.clone()
         } else {
             SMALL_ART.clone()
@@ -48,48 +56,77 @@ impl ArtComponent {
 
 impl TableComponent for ArtComponent {
     fn get_component(mut self) -> Result<Self, AppErrors> {
-        let mut current_art = self.get_art();
+        let current_art = self.get_art();
 
         let art_width = current_art.iter().map(|l| l.chars().count()).max().unwrap();
 
-        let total_pad = self.width.saturating_sub(art_width);
-        let left = total_pad / 2;
+        let available_width = self
+            .data
+            .terminal_inner_width
+            .saturating_sub(self.data.padding.left + self.data.padding.right);
 
-        for line in current_art.iter_mut() {
-            let line_width = line.chars().count();
-            let right = self.width.saturating_sub(left + line_width);
+        let total_pad = available_width.saturating_sub(art_width);
+        let left = self.data.padding.left + (total_pad / 2);
 
-            *line = format!("│{}{}{}│", " ".repeat(left), line, " ".repeat(right));
+        let mut result = Vec::<String>::new();
+
+        for _ in 0..self.data.padding.top {
+            result.push(format!("│{}│", " ".repeat(self.data.terminal_inner_width)));
         }
 
-        self.component = current_art;
+        for line in &current_art {
+            let line_width = line.chars().count();
+            let right = self
+                .data
+                .terminal_inner_width
+                .saturating_sub(left + line_width);
+
+            result.push(format!(
+                "│{}{}{}│",
+                " ".repeat(left),
+                line,
+                " ".repeat(right)
+            ));
+        }
+
+        for _ in 0..self.data.padding.bottom {
+            result.push(format!("│{}│", " ".repeat(self.data.terminal_inner_width)));
+        }
+
+        self.data.component = result;
 
         Ok(self)
     }
 
     fn to_start_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
-        result.push(format!("├{}┤", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.insert(
+            0,
+            format!("╭{}╮", "─".repeat(self.data.terminal_inner_width)),
+        );
+        result.push(format!("├{}┤", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_middle_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.push(format!("├{}┤", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.push(format!("├{}┤", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_end_of_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.push(format!("╰{}╯", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 
     fn to_solo_table(&self) -> Vec<String> {
-        let mut result = self.component.clone();
-        result.insert(0, format!("╭{}╮", "─".repeat(self.width)));
-        result.push(format!("╰{}╯", "─".repeat(self.width)));
+        let mut result = self.data.component.clone();
+        result.insert(
+            0,
+            format!("╭{}╮", "─".repeat(self.data.terminal_inner_width)),
+        );
+        result.push(format!("╰{}╯", "─".repeat(self.data.terminal_inner_width)));
         result
     }
 }

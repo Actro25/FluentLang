@@ -87,3 +87,17 @@ pub trait TableComponent {
     /// ```
     fn to_solo_table(&self) -> Vec<String>;
 }
+
+pub struct NecessaryDataTable {
+    component: Vec<String>,
+    terminal_inner_width: usize,
+    padding: Paddings
+}
+
+#[derive(Clone)]
+pub struct Paddings {
+    pub left: usize,
+    pub right: usize,
+    pub top: usize,
+    pub bottom: usize
+}
