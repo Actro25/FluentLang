@@ -2,8 +2,8 @@
 resolver = "3"
 
 members = [
-    "crates/fluentlang-cli",
     "crates/fluentlang-core",
+    "crates/fluentlang-tools",
     "crates/fluentlang-api",
     "crates/fluentlang-printing"
 ]

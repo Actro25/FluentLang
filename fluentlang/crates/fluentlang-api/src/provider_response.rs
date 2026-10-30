@@ -1,6 +1,6 @@
 ﻿use crate::providers::api::build_request::ApiBuildRequest;
 use crate::providers::api::parse::ApiParse;
-use fluentlang_core::error::AppErrors;
+use fluentlang_tools::error::AppErrors;
 use reqwest::{Response, StatusCode};
 
 pub trait ApiSender: ApiBuildRequest + ApiParse {}

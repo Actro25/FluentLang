@@ -3,10 +3,10 @@ use fluentlang_api::provider_response::get_response;
 use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
-use fluentlang_core::config_parsing::{
+use fluentlang_tools::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
-use fluentlang_core::error::AppErrors;
+use fluentlang_tools::error::AppErrors;
 use fluentlang_printing::app_print::{print_config_data, print_status};
 use fluentlang_printing::table_components::Paddings;
 

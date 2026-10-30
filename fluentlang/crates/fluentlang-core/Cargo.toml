@@ -1,12 +1,13 @@
 [package]
 name = "fluentlang-core"
+authors = ["Actro25"]
+description = "Nothing"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-thiserror = { workspace = true }
-serde_json = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-dirs = { workspace = true }
-reqwest = { workspace = true }
-terminal-colorsaurus = { workspace = true }
+fluentlang-tools = { path = "../fluentlang-tools" }
+fluentlang-api = { path = "../fluentlang-api" }
+fluentlang-printing = { path = "../fluentlang-printing"}
+clap = { workspace = true, features = ["derive"] }
+tokio = { workspace = true }

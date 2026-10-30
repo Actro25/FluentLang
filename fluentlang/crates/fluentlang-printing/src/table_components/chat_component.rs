@@ -1,7 +1,7 @@
 ﻿use crate::app_print::get_skin;
 use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_core::config_parsing::AvailableAiProviders;
-use fluentlang_core::error::AppErrors;
+use fluentlang_tools::config_parsing::AvailableAiProviders;
+use fluentlang_tools::error::AppErrors;
 use strip_ansi_escapes::strip;
 use termimad::FmtText;
 

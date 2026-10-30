@@ -1,4 +1,4 @@
-﻿use fluentlang_core::error::AppErrors;
+﻿use fluentlang_tools::error::AppErrors;
 
 pub mod art_component;
 pub mod chat_component;

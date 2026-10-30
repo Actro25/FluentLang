@@ -1,5 +1,5 @@
 ﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_core::error::AppErrors;
+use fluentlang_tools::error::AppErrors;
 use std::sync::LazyLock;
 
 static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {

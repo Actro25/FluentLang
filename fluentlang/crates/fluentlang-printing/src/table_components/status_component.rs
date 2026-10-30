@@ -1,6 +1,6 @@
 ﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_core::config_parsing::AvailableAiProviders;
-use fluentlang_core::error::AppErrors;
+use fluentlang_tools::config_parsing::AvailableAiProviders;
+use fluentlang_tools::error::AppErrors;
 
 pub struct StatusComponent {
     data: NecessaryDataTable,
