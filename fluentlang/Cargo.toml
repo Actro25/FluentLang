@@ -3,8 +3,9 @@ resolver = "3"
 
 members = [
     "crates/fluentlang-cli",
-    "crates/fluentlang-core",
-    "crates/fluentlang-api"
+    "crates/fluentlang-utils",
+    "crates/fluentlang-api",
+    "crates/fluentlang-printing"
 ]
 
 [workspace.dependencies]
@@ -15,3 +16,6 @@ dirs = "7.0.0"
 thiserror = "2.0.20"
 reqwest = { version = "0.13.5", features = ["json"] }
 tokio = { version = "1.53.1", features = ["rt", "rt-multi-thread", "macros"] }
+terminal-colorsaurus = "1.0.3"
+termimad = "0.35.5"
+strip-ansi-escapes = "0.2"

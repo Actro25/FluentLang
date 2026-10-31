@@ -9,7 +9,6 @@ pub enum InputData {
     GroqCloud(Key),
     GoogleAiStudio(Key),
     OpenRouter(Key),
-    CerebrasInference(Key),
     CurrentProvider(AvailableAiProviders),
 }
 
@@ -21,7 +20,6 @@ pub enum AvailableAiProviders {
     GroqCloud,
     GoogleAiStudio,
     OpenRouter,
-    CerebrasInference,
     #[serde(other)]
     Unknow,
 }
@@ -36,7 +34,6 @@ pub struct OutputData {
     pub groq_cloud: ApiKey,
     pub google_ai_studio: ApiKey,
     pub open_router: ApiKey,
-    pub cerebras_inference: ApiKey,
     pub current_provider: AvailableAiProviders,
 }
 
@@ -45,10 +42,13 @@ pub struct ApiKey {
     pub private: String
 }
 
-///This function set data into JSON config by path.
-///Initially, this function takes existed data (OutputData) in JSON file to not lost it.
-///Then the function set data into the struct (OutputData) by InputData struct.
-///This function also creates config.json
+/// The function sets data into JSON config by `path` and creates the config file if it doesn't exist.
+/// The config file is represented by JSON file.
+///
+/// # Arguments
+///
+/// * `path` - the path where the config file has to be.
+/// * `set_data` - a data that will be written in the config file.
 pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<(), AppErrors> {
     let path = path.as_ref();
     /*
@@ -74,9 +74,6 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
         InputData::OpenRouter(key) => match key {
             Key::Private(key) => config_data.open_router.private = key,
         },
-        InputData::CerebrasInference(keys) => match keys {
-            Key::Private(key) => config_data.cerebras_inference.private = key,
-        },
         InputData::CurrentProvider(provider) => match provider {
             AvailableAiProviders::GroqCloud => {
                 config_data.current_provider = AvailableAiProviders::GroqCloud
@@ -86,9 +83,6 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
             }
             AvailableAiProviders::OpenRouter => {
                 config_data.current_provider = AvailableAiProviders::OpenRouter
-            }
-            AvailableAiProviders::CerebrasInference => {
-                config_data.current_provider = AvailableAiProviders::CerebrasInference
             }
             _ => {}
         },
@@ -109,8 +103,11 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
     Ok(())
 }
 
-///This function will return Error::ConfigFileDoesntExist if path returns false from function .exists().
-///If path exists it will return OutputData struct if the path exists and there isn't any io error.
+/// The function returns a data that was in the config file.
+///
+/// # Arguments
+///
+/// * `path` - the path where the config file has to be.
 pub fn get_config_data(path: impl AsRef<Path>) -> Result<OutputData, AppErrors> {
     let path = path.as_ref();
 
@@ -127,7 +124,7 @@ pub fn get_config_data(path: impl AsRef<Path>) -> Result<OutputData, AppErrors> 
                 Err(err) => Err(AppErrors::ConfigJsonProblem(err)),
             }
         }
-        Err(err) => Err(AppErrors::ConfigIOProblem(err)),
+        Err(err) => Err(AppErrors::IOProblem(err)),
     }
 }
 

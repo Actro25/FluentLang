@@ -3,10 +3,12 @@ use fluentlang_api::provider_response::get_response;
 use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
-use fluentlang_core::config_parsing::{
+use fluentlang_printing::app_print::{print_config_data, print_status};
+use fluentlang_printing::tables::components::Paddings;
+use fluentlang_utils::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
-use fluentlang_core::error::AppErrors;
+use fluentlang_utils::error::AppErrors;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -91,9 +93,6 @@ pub enum ConfigKey {
 
     #[value(name = "open-router.private_key")]
     OpenRouterPrivateKey,
-
-    #[value(name = "cerebras-inference.private_key")]
-    CerebrasPrivateKey,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
@@ -106,9 +105,6 @@ pub enum Providers {
 
     #[value(name = "open-router")]
     OpenRouter,
-
-    #[value(name = "cerebras-inference", alias = "cerebras")]
-    CerebrasInference,
 }
 
 impl Cli {
@@ -116,7 +112,17 @@ impl Cli {
         match self {
             Cli::Sentence { sentence, .. } => sentence_command(sentence).await?,
             Cli::Config { command, .. } => match command {
-                None => show_config_data()?,
+                None => {
+                    let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
+                        Ok(data) => data,
+                        Err(AppErrors::ConfigFileDoesntExist) => OutputData::default(),
+                        Err(err) => return Err(err),
+                    };
+
+                    let paddings = Paddings::default();
+
+                    print_config_data(config_data, paddings)?;
+                }
                 Some(command) => config_command(command)?,
             },
         }
@@ -125,7 +131,11 @@ impl Cli {
     }
 }
 
-///This function sends request to the chosen provider from the config file.
+/// The function sends request to the current provider's API.
+///
+/// # Arguments
+///
+/// * `sentence` - a sentence that the user wants to know all about.
 async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     //Firstly, we have to get what the current provider is.
     let config_data = match get_config_data(&get_path(CONFIG_NAME)?) {
@@ -135,33 +145,38 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
     };
 
     //When we have config data we send request to the corresponding provider.
-    match config_data.current_provider {
-        AvailableAiProviders::GroqCloud => println!(
-            "{}",
-            get_response(GroqAPI::default(), sentence, get_private_key(&config_data)).await?
-        ),
-        AvailableAiProviders::GoogleAiStudio => println!(
-            "{}",
+    let answer = match config_data.current_provider {
+        AvailableAiProviders::GroqCloud => {
+            get_response(
+                GroqAPI::default(),
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
+            )
+            .await?
+        }
+        AvailableAiProviders::GoogleAiStudio => {
             get_response(
                 GoogleAiStudioAPI::default(),
-                sentence,
-                get_private_key(&config_data)
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
             )
             .await?
-        ),
-        AvailableAiProviders::OpenRouter => println!(
-            "{}",
+        }
+        AvailableAiProviders::OpenRouter => {
             get_response(
                 OpenRouterAPI::default(),
-                sentence,
-                get_private_key(&config_data)
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
             )
             .await?
-        ),
-        AvailableAiProviders::CerebrasInference => return Err(AppErrors::CurrentlyUnavailable),
+        }
         AvailableAiProviders::Unknow => return Err(AppErrors::UnknowProvider),
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
+    
+    let paddings = Paddings::default();
+
+    print_status(config_data.current_provider, sentence, answer, paddings)?;
 
     Ok(())
 }
@@ -171,12 +186,15 @@ fn get_private_key(config_data: &OutputData) -> String {
         AvailableAiProviders::GroqCloud => config_data.groq_cloud.private.clone(),
         AvailableAiProviders::GoogleAiStudio => config_data.google_ai_studio.private.clone(),
         AvailableAiProviders::OpenRouter => config_data.open_router.private.clone(),
-        AvailableAiProviders::CerebrasInference => config_data.cerebras_inference.private.clone(),
         _ => "".to_string(),
     }
 }
 
-///This function writes the data into the config file.
+/// The function writes input data into the config file.
+///
+/// # Arguments
+///
+/// * `command` - an enum of the config subcommand.
 fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     match command {
         ConfigCommands::Set { key, value } => {
@@ -184,7 +202,6 @@ fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
                 ConfigKey::GroqPrivateKey => InputData::GroqCloud(Key::Private(value)),
                 ConfigKey::GooglePrivateKey => InputData::GoogleAiStudio(Key::Private(value)),
                 ConfigKey::OpenRouterPrivateKey => InputData::OpenRouter(Key::Private(value)),
-                ConfigKey::CerebrasPrivateKey => InputData::CerebrasInference(Key::Private(value)),
             };
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
@@ -198,9 +215,6 @@ fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
                 Providers::OpenRouter => {
                     InputData::CurrentProvider(AvailableAiProviders::OpenRouter)
                 }
-                Providers::CerebrasInference => {
-                    InputData::CurrentProvider(AvailableAiProviders::CerebrasInference)
-                }
             };
 
             set_config_data(&get_path(CONFIG_NAME)?, input)?;
@@ -208,53 +222,4 @@ fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {
     };
 
     Ok(())
-}
-
-pub fn show_config_data() -> Result<(), AppErrors> {
-    //Getting config data to show
-    let output = get_config_data(&get_path(CONFIG_NAME)?)?;
-
-    println!("=== Current Configuration ===");
-    println!("Current Active Provider: {:?}\n", output.current_provider);
-
-    println!("--- Groq Cloud ---");
-    println!(
-        "  Private: {}",
-        translate_into_hidden(output.groq_cloud.private)
-    );
-
-    println!("\n--- Google AI Studio ---");
-    println!(
-        "  Private: {}",
-        translate_into_hidden(output.google_ai_studio.private)
-    );
-
-    println!("\n--- Open Router ---");
-    println!(
-        "  Private: {}",
-        translate_into_hidden(output.open_router.private)
-    );
-
-    println!("\n--- Cerebras Inference ---");
-    println!(
-        "  Private: {}",
-        translate_into_hidden(output.cerebras_inference.private)
-    );
-
-    Ok(())
-}
-
-fn translate_into_hidden(key: String) -> String {
-    let percent_of_shown = 10;
-    let to_show = key.len() / percent_of_shown;
-
-    let mut result: Vec<char> = key.chars().collect();
-
-    let mut index = to_show;
-    while index < result.len() {
-        result[index] = '*';
-        index += 1;
-    }
-
-    result.into_iter().collect()
 }
