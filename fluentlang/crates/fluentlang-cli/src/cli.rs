@@ -3,12 +3,12 @@ use fluentlang_api::provider_response::get_response;
 use fluentlang_api::providers::google_ai_studio::GoogleAiStudioAPI;
 use fluentlang_api::providers::groq_api::GroqAPI;
 use fluentlang_api::providers::open_router::OpenRouterAPI;
-use fluentlang_tools::config_parsing::{
+use fluentlang_printing::app_print::{print_config_data, print_status};
+use fluentlang_printing::tables::components::Paddings;
+use fluentlang_utils::config_parsing::{
     AvailableAiProviders, InputData, Key, OutputData, get_config_data, get_path, set_config_data,
 };
-use fluentlang_tools::error::AppErrors;
-use fluentlang_printing::app_print::{print_config_data, print_status};
-use fluentlang_printing::table_components::Paddings;
+use fluentlang_utils::error::AppErrors;
 
 const CONFIG_NAME: &str = "config.json";
 
@@ -119,12 +119,7 @@ impl Cli {
                         Err(err) => return Err(err),
                     };
 
-                    let paddings: Paddings = Paddings {
-                        left: 5,
-                        right: 5,
-                        top: 1,
-                        bottom: 1
-                    };
+                    let paddings = Paddings::default();
 
                     print_config_data(config_data, paddings)?;
                 }
@@ -137,6 +132,8 @@ impl Cli {
 }
 
 /// The function sends request to the current provider's API.
+///
+/// # Arguments
 ///
 /// * `sentence` - a sentence that the user wants to know all about.
 async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
@@ -152,24 +149,24 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
         AvailableAiProviders::GroqCloud => {
             get_response(
                 GroqAPI::default(),
-                sentence.clone(),
-                get_private_key(&config_data),
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
             )
             .await?
         }
         AvailableAiProviders::GoogleAiStudio => {
             get_response(
                 GoogleAiStudioAPI::default(),
-                sentence.clone(),
-                get_private_key(&config_data),
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
             )
             .await?
         }
         AvailableAiProviders::OpenRouter => {
             get_response(
                 OpenRouterAPI::default(),
-                sentence.clone(),
-                get_private_key(&config_data),
+                sentence.as_str(),
+                get_private_key(&config_data).as_str(),
             )
             .await?
         }
@@ -177,12 +174,7 @@ async fn sentence_command(sentence: String) -> Result<(), AppErrors> {
         AvailableAiProviders::ProviderIsNotChosen => return Err(AppErrors::ProviderIsNotChosen),
     };
     
-    let paddings: Paddings = Paddings {
-        left: 5,
-        right: 5,
-        top: 1,
-        bottom: 1
-    };
+    let paddings = Paddings::default();
 
     print_status(config_data.current_provider, sentence, answer, paddings)?;
 
@@ -199,6 +191,8 @@ fn get_private_key(config_data: &OutputData) -> String {
 }
 
 /// The function writes input data into the config file.
+///
+/// # Arguments
 ///
 /// * `command` - an enum of the config subcommand.
 fn config_command(command: ConfigCommands) -> Result<(), AppErrors> {

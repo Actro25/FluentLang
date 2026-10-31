@@ -1,6 +1,6 @@
-﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_tools::config_parsing::AvailableAiProviders;
-use fluentlang_tools::error::AppErrors;
+﻿use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+use fluentlang_utils::config_parsing::AvailableAiProviders;
+use fluentlang_utils::error::AppErrors;
 
 pub struct StatusComponent {
     data: NecessaryDataTable,
@@ -21,7 +21,7 @@ impl StatusComponent {
 }
 
 impl TableComponent for StatusComponent {
-    fn get_component(mut self) -> Result<Self, AppErrors> {
+    fn into_component(mut self) -> Result<Self, AppErrors> {
         let empty_line = format!("│{}│", " ".repeat(self.data.terminal_inner_width));
 
         for _ in 0..self.data.padding.top {

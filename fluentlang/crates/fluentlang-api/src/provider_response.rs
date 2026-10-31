@@ -1,24 +1,26 @@
 ﻿use crate::providers::api::build_request::ApiBuildRequest;
 use crate::providers::api::parse::ApiParse;
-use fluentlang_tools::error::AppErrors;
+use fluentlang_utils::error::AppErrors;
 use reqwest::{Response, StatusCode};
 
 pub trait ApiSender: ApiBuildRequest + ApiParse {}
 impl<T: ApiBuildRequest + ApiParse> ApiSender for T {}
 
 /// The function sends request to the provider's API.
-/// 
+///
+/// # Arguments
+///
 /// * `provider` - a provider that implements the trait for sending API requests.
 /// * `sentence` - a sentence that the user wants to know all about.
 /// * `key` - a private key to get access to the API calls.
 pub async fn get_response<P: ApiSender>(
     provider: P,
-    sentence: String,
-    key: String,
+    sentence: &str,
+    key: &str,
 ) -> Result<String, AppErrors> {
     let response = provider
-        .build_request(&key)
-        .json(&provider.body(&sentence))
+        .build_request(key)
+        .json(&provider.body(sentence))
         .send()
         .await?;
 

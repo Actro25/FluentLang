@@ -1,13 +1,13 @@
-﻿use fluentlang_tools::error::AppErrors;
+﻿use fluentlang_utils::error::AppErrors;
 
-pub mod art_component;
-pub mod chat_component;
-pub mod status_component;
-pub mod config_status_component;
+pub mod art;
+pub mod chat;
+pub mod status;
+pub mod config_status;
 
 pub trait TableComponent {
     /// The function is supposed to create component and returns `Self` for a chain call.
-    fn get_component(self) -> Result<Self, AppErrors>
+    fn into_component(self) -> Result<Self, AppErrors>
     where
         Self: Sized;
 
@@ -100,4 +100,15 @@ pub struct Paddings {
     pub right: usize,
     pub top: usize,
     pub bottom: usize
+}
+
+impl Default for Paddings {
+    fn default() -> Self {
+        Self {
+            left: 5,
+            right: 5,
+            top: 1,
+            bottom: 1
+        }
+    }
 }

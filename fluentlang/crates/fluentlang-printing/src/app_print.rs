@@ -1,12 +1,12 @@
-﻿use crate::table_components::art_component::ArtComponent;
-use crate::table_components::chat_component::ChatComponent;
-use crate::table_components::config_status_component::ConfigStatusComponent;
-use crate::table_components::status_component::StatusComponent;
-use crate::table_components::{Paddings, TableComponent};
-use crate::tables::Table;
-use crate::tables::fluent_lang_table::FluentLangTable;
-use fluentlang_tools::config_parsing::{AvailableAiProviders, OutputData};
-use fluentlang_tools::error::AppErrors;
+﻿use crate::tables::Table;
+use crate::tables::components::art::ArtComponent;
+use crate::tables::components::chat::ChatComponent;
+use crate::tables::components::config_status::ConfigStatusComponent;
+use crate::tables::components::status::StatusComponent;
+use crate::tables::components::{Paddings, TableComponent};
+use crate::tables::fluent_lang::FluentLangTable;
+use fluentlang_utils::config_parsing::{AvailableAiProviders, OutputData};
+use fluentlang_utils::error::AppErrors;
 use termimad::MadSkin;
 use termimad::crossterm::style::Color;
 use termimad::crossterm::terminal;
@@ -15,6 +15,8 @@ use terminal_colorsaurus::{QueryOptions, color_palette};
 /// The function was created for building an output for showing answer from a provider's API.
 /// The function builds a table from components, and after it renders the table.
 /// The table shows art component, status component, and chat component.
+///
+/// # Arguments
 ///
 /// * `provider` - current chosen provider.
 /// * `sentence` - a sentence that was sent to the provider's API.
@@ -40,15 +42,15 @@ pub fn print_status(
 
     FluentLangTable::default()
         .add_component(Box::new(
-            ArtComponent::new(width, table_paddings.clone()).get_component()?,
+            ArtComponent::new(width, table_paddings.clone()).into_component()?,
         ))
         .add_component(Box::new(
             StatusComponent::new(width, provider.clone(), table_paddings.clone())
-                .get_component()?,
+                .into_component()?,
         ))
         .add_component(Box::new(
             ChatComponent::new(width, provider, sentence, answer, table_paddings)
-                .get_component()?,
+                .into_component()?,
         ))
         .render(fg, bg);
 
@@ -58,6 +60,8 @@ pub fn print_status(
 /// The function was created for building an output for showing the config data.
 /// The function builds a table from components, and after it renders the table.
 /// The table shows art component, and config status component.
+///
+/// # Arguments
 ///
 /// * `output_data` - the config data.
 pub fn print_config_data(
@@ -80,10 +84,10 @@ pub fn print_config_data(
 
     FluentLangTable::default()
         .add_component(Box::new(
-            ArtComponent::new(width, table_paddings.clone()).get_component()?,
+            ArtComponent::new(width, table_paddings.clone()).into_component()?,
         ))
         .add_component(Box::new(
-            ConfigStatusComponent::new(width, output_data, table_paddings).get_component()?,
+            ConfigStatusComponent::new(width, output_data, table_paddings).into_component()?,
         ))
         .render(fg, bg);
 

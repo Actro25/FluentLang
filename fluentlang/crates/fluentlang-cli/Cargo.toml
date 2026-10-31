@@ -1,12 +1,12 @@
 [package]
-name = "fluentlang-core"
+name = "fluentlang-cli"
 authors = ["Actro25"]
-description = "Nothing"
+description = "Crate for working with CLI."
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-fluentlang-tools = { path = "../fluentlang-tools" }
+fluentlang-utils = { path = "../fluentlang-utils" }
 fluentlang-api = { path = "../fluentlang-api" }
 fluentlang-printing = { path = "../fluentlang-printing"}
 clap = { workspace = true, features = ["derive"] }

@@ -1,5 +1,5 @@
-﻿use crate::table_components::TableComponent;
-use crate::tables::Table;
+﻿use crate::tables::Table;
+use crate::tables::components::TableComponent;
 use termimad::crossterm::style::{Color, Stylize};
 
 #[derive(Default)]

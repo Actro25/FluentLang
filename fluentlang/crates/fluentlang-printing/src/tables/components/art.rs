@@ -1,5 +1,5 @@
-﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_tools::error::AppErrors;
+﻿use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+use fluentlang_utils::error::AppErrors;
 use std::sync::LazyLock;
 
 static FULL_ART: LazyLock<Vec<String>> = LazyLock::new(|| {
@@ -55,7 +55,7 @@ impl ArtComponent {
 }
 
 impl TableComponent for ArtComponent {
-    fn get_component(mut self) -> Result<Self, AppErrors> {
+    fn into_component(mut self) -> Result<Self, AppErrors> {
         let current_art = self.get_art();
 
         let art_width = current_art.iter().map(|l| l.chars().count()).max().unwrap();

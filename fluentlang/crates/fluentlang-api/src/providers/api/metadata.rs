@@ -14,6 +14,8 @@ pub trait ApiMetaData {
 
     /// The function is supposed build body.
     ///
+    /// # Arguments
+    /// 
     /// * `sentence` - a sentence that the user wants to know all about.
     fn body(&self, sentence: &str) -> Value;
 }

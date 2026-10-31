@@ -491,19 +491,19 @@ checksum = "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484"
 name = "fluentlang-api"
 version = "0.1.0"
 dependencies = [
- "fluentlang-tools",
+ "fluentlang-utils",
  "reqwest",
  "serde_json",
 ]
 
 [[package]]
-name = "fluentlang-core"
+name = "fluentlang-cli"
 version = "0.1.0"
 dependencies = [
  "clap",
  "fluentlang-api",
  "fluentlang-printing",
- "fluentlang-tools",
+ "fluentlang-utils",
  "tokio",
 ]
 
@@ -511,14 +511,14 @@ dependencies = [
 name = "fluentlang-printing"
 version = "0.1.0"
 dependencies = [
- "fluentlang-tools",
+ "fluentlang-utils",
  "strip-ansi-escapes",
  "termimad",
  "terminal-colorsaurus",
 ]
 
 [[package]]
-name = "fluentlang-tools"
+name = "fluentlang-utils"
 version = "0.1.0"
 dependencies = [
  "dirs",

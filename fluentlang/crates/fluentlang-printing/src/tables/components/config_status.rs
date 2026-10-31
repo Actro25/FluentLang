@@ -1,6 +1,6 @@
-﻿use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_tools::config_parsing::OutputData;
-use fluentlang_tools::error::AppErrors;
+﻿use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+use fluentlang_utils::config_parsing::OutputData;
+use fluentlang_utils::error::AppErrors;
 
 pub struct ConfigStatusComponent {
     data: NecessaryDataTable,
@@ -72,7 +72,7 @@ impl ConfigStatusComponent {
 }
 
 impl TableComponent for ConfigStatusComponent {
-    fn get_component(mut self) -> Result<Self, AppErrors>
+    fn into_component(mut self) -> Result<Self, AppErrors>
     where
         Self: Sized,
     {

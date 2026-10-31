@@ -1,6 +1,7 @@
 [package]
-name = "fluentlang-tools"
+name = "fluentlang-utils"
 version = "0.1.0"
+description = "Essential tools for fluentlang app."
 edition = "2024"
 
 [dependencies]

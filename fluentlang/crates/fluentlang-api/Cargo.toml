@@ -1,9 +1,10 @@
 [package]
 name = "fluentlang-api"
 version = "0.1.0"
+description = "Crate for API calls to the LLMs."
 edition = "2024"
 
 [dependencies]
 reqwest = { workspace = true }
 serde_json = { workspace = true }
-fluentlang-tools = { path = "../fluentlang-tools" }
+fluentlang-utils = { path = "../fluentlang-utils" }

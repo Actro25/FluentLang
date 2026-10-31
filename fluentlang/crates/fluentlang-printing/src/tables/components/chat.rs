@@ -1,7 +1,7 @@
 ﻿use crate::app_print::get_skin;
-use crate::table_components::{NecessaryDataTable, Paddings, TableComponent};
-use fluentlang_tools::config_parsing::AvailableAiProviders;
-use fluentlang_tools::error::AppErrors;
+use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+use fluentlang_utils::config_parsing::AvailableAiProviders;
+use fluentlang_utils::error::AppErrors;
 use strip_ansi_escapes::strip;
 use termimad::FmtText;
 
@@ -78,7 +78,7 @@ impl ChatComponent {
 }
 
 impl TableComponent for ChatComponent {
-    fn get_component(mut self) -> Result<Self, AppErrors> {
+    fn into_component(mut self) -> Result<Self, AppErrors> {
         let empty_line = format!("│{}│", " ".repeat(self.data.terminal_inner_width));
 
         for _ in 0..self.data.padding.top {

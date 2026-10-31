@@ -45,6 +45,8 @@ pub struct ApiKey {
 /// The function sets data into JSON config by `path` and creates the config file if it doesn't exist.
 /// The config file is represented by JSON file.
 ///
+/// # Arguments
+///
 /// * `path` - the path where the config file has to be.
 /// * `set_data` - a data that will be written in the config file.
 pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<(), AppErrors> {
@@ -102,6 +104,8 @@ pub fn set_config_data(path: impl AsRef<Path>, set_data: InputData) -> Result<()
 }
 
 /// The function returns a data that was in the config file.
+///
+/// # Arguments
 ///
 /// * `path` - the path where the config file has to be.
 pub fn get_config_data(path: impl AsRef<Path>) -> Result<OutputData, AppErrors> {
