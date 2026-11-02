@@ -8,11 +8,14 @@ pub const PROMPT: &str = "You are a professional language assistant for the lang
 /// This trait have to be implemented for structs that want to use ApiBuildRequest trait.
 /// The trait was created only for metadata to send request.
 pub trait ApiMetaData {
-    /// This function returns to the api.
+    /// The function is supposed to return url for the api call.
     /// It shouldn't have parameters, because parameters will be entered when implementing ApiBuilderRequest
     fn url(&self) -> &str;
 
-    /// This function builds body and expects your sentence.
-    /// Because we transfer our sentence via body.
+    /// The function is supposed build body.
+    ///
+    /// # Arguments
+    /// 
+    /// * `sentence` - a sentence that the user wants to know all about.
     fn body(&self, sentence: &str) -> Value;
 }

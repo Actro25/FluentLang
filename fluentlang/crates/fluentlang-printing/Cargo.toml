@@ -1,0 +1,11 @@
+﻿[package]
+name = "fluentlang-printing"
+version = "0.1.0"
+description = "Crate for outputing beauty tables."
+edition = "2024"
+
+[dependencies]
+fluentlang-utils = { path = "../fluentlang-utils" }
+terminal-colorsaurus = { workspace = true }
+termimad = { workspace = true }
+strip-ansi-escapes = { workspace = true }
