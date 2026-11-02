@@ -45,7 +45,6 @@ impl Table for FluentLangTable {
 }
 
 impl FluentLangTable {
-    #[inline]
     fn render_table(&self, res: Vec<String>, fg: Color, bg: Color) {
         for line in res {
             println!("{}", line.as_str().with(fg).on(bg));

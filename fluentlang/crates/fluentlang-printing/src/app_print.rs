@@ -94,6 +94,7 @@ pub fn print_config_data(
     Ok(())
 }
 
+/// The function returns basic MadSkin for using in console output.
 pub fn get_skin() -> Result<MadSkin, AppErrors> {
     let palette = color_palette(QueryOptions::default())?;
     let fg = Color::Rgb {
