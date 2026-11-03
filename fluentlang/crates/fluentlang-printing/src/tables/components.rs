@@ -4,6 +4,7 @@ pub mod art;
 pub mod chat;
 pub mod status;
 pub mod config_status;
+pub mod error;
 
 pub trait TableComponent {
     /// The function is supposed to create component and returns `Self` for a chain call.
