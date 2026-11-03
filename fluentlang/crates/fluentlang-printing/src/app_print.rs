@@ -11,6 +11,7 @@ use termimad::MadSkin;
 use termimad::crossterm::style::Color;
 use termimad::crossterm::terminal;
 use terminal_colorsaurus::{QueryOptions, color_palette};
+use crate::tables::components::error::ErrorComponent;
 
 /// The function was created for building an output for showing answer from a provider's API.
 /// The function builds a table from components, and after it renders the table.
@@ -21,6 +22,7 @@ use terminal_colorsaurus::{QueryOptions, color_palette};
 /// * `provider` - current chosen provider.
 /// * `sentence` - a sentence that was sent to the provider's API.
 /// * `answer` - an answer from the provider's API.
+/// * `table_paddings` - a padding for a table.
 pub fn print_status(
     provider: AvailableAiProviders,
     sentence: String,
@@ -64,6 +66,7 @@ pub fn print_status(
 /// # Arguments
 ///
 /// * `output_data` - the config data.
+/// * `table_paddings` - a padding for a table.
 pub fn print_config_data(
     output_data: OutputData,
     table_paddings: Paddings,
@@ -88,6 +91,43 @@ pub fn print_config_data(
         ))
         .add_component(Box::new(
             ConfigStatusComponent::new(width, output_data, table_paddings).into_component()?,
+        ))
+        .render(fg, bg);
+
+    Ok(())
+}
+
+/// The function was created for building an output for showing error answer from a provider's API.
+/// The function builds a table from components, and after it renders the table.
+/// The table shows art component and error component.
+///
+/// # Arguments
+///
+/// * `error_text` - a text of the error.
+/// * `table_paddings` - a padding for a table.
+pub fn print_error(
+    error_text: String,
+    table_paddings: Paddings
+) -> Result<(), AppErrors> {
+    let (width, _) = terminal::size()?;
+    let palette = color_palette(QueryOptions::default())?;
+    let fg = Color::Rgb {
+        r: 113,
+        g: 163,
+        b: 255,
+    };
+    let bg = Color::Rgb {
+        r: palette.background.r as u8,
+        g: palette.background.g as u8,
+        b: palette.background.b as u8,
+    };
+
+    FluentLangTable::default()
+        .add_component(Box::new(
+            ArtComponent::new(width, table_paddings.clone()).into_component()?,
+        ))
+        .add_component(Box::new(
+            ErrorComponent::new(width, error_text, table_paddings).into_component()?
         ))
         .render(fg, bg);
 
