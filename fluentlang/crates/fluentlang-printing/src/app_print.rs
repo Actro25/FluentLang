@@ -69,7 +69,7 @@ pub fn print_config_data(
             ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
-            ConfigStatusComponent::new(width, output_data, table_paddings).into_component(None)?,
+            ConfigStatusComponent::new(width, output_data, table_paddings)?.into_component(None)?,
         ))
         .render(fg, bg);
 
