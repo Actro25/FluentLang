@@ -1,4 +1,5 @@
-﻿use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+﻿use termimad::MadSkin;
+use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
 use fluentlang_utils::config_parsing::AvailableAiProviders;
 use fluentlang_utils::error::AppErrors;
 
@@ -21,7 +22,7 @@ impl StatusComponent {
 }
 
 impl TableComponent for StatusComponent {
-    fn into_component(mut self) -> Result<Self, AppErrors> {
+    fn into_component(mut self, _mad_skin: Option<MadSkin>) -> Result<Self, AppErrors> {
         let empty_line = format!("│{}│", " ".repeat(self.data.terminal_inner_width));
 
         for _ in 0..self.data.padding.top {

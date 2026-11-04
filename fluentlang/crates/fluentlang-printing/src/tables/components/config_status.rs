@@ -1,4 +1,5 @@
-﻿use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
+﻿use termimad::MadSkin;
+use crate::tables::components::{NecessaryDataTable, Paddings, TableComponent};
 use fluentlang_utils::config_parsing::OutputData;
 use fluentlang_utils::error::AppErrors;
 
@@ -72,7 +73,7 @@ impl ConfigStatusComponent {
 }
 
 impl TableComponent for ConfigStatusComponent {
-    fn into_component(mut self) -> Result<Self, AppErrors>
+    fn into_component(mut self, _mad_skin: Option<MadSkin>) -> Result<Self, AppErrors>
     where
         Self: Sized,
     {

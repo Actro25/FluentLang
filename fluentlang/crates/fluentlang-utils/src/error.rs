@@ -26,6 +26,9 @@ pub enum AppErrors {
     #[error("There is a terminal problem: The terminal is too small to show the output. Please make the terminal bigger.")]
     SizeTerminalProblem(),
     
+    #[error("{0}: the component expects skin for terminal printing but skin wasn't found.")]
+    TheComponentExpectsSkinButSkinNotFound(String),
+    
     // Network Errors
     #[error("There is a NetWork error: {0}")]
     NetworkError(#[from] reqwest::Error),

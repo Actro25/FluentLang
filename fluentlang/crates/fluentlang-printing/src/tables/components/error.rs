@@ -1,4 +1,4 @@
-﻿
+﻿use std::any::type_name_of_val;
 use crate::tables::components::{
     NecessaryDataTable,
     Paddings,
@@ -7,6 +7,7 @@ use crate::tables::components::{
 use fluentlang_utils::error::AppErrors;
 use std::sync::LazyLock;
 use termimad::{FmtText, MadSkin};
+use fluentlang_utils::error::AppErrors::TheComponentExpectsSkinButSkinNotFound;
 
 const ICON_SPACING: usize = 3;
 
@@ -64,7 +65,7 @@ impl ErrorComponent {
         ));
     }
 
-    fn render_error(&mut self) {
+    fn render_error(&mut self, skin: &MadSkin) {
         let available_width = self
             .data
             .terminal_inner_width
@@ -103,14 +104,11 @@ impl ErrorComponent {
             .saturating_sub(actual_icon_width + spacing)
             .max(1);
 
-        // FmtText використовується для перенесення тексту.
-        let skin = MadSkin::no_style();
-
         let message = format!("ERROR\n{}", self.error);
 
         let rendered = format!(
             "{}",
-            FmtText::from(&skin, &message, Some(text_width))
+            FmtText::from(skin, &message, Some(text_width))
         );
 
         let text_lines: Vec<&str> = rendered.lines().collect();
@@ -147,12 +145,17 @@ impl ErrorComponent {
 }
 
 impl TableComponent for ErrorComponent {
-    fn into_component(mut self) -> Result<Self, AppErrors> {
+    fn into_component(mut self, mad_skin: Option<MadSkin>) -> Result<Self, AppErrors> {
+        if mad_skin.is_none() {
+            return Err(TheComponentExpectsSkinButSkinNotFound(type_name_of_val(&self).to_string()));
+        }
+        let skin = mad_skin.unwrap();
+
         for _ in 0..self.data.padding.top {
             self.push_empty_line();
         }
 
-        self.render_error();
+        self.render_error(&skin);
 
         for _ in 0..self.data.padding.bottom {
             self.push_empty_line();

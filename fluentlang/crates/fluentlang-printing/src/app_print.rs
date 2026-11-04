@@ -2,6 +2,7 @@
 use crate::tables::components::art::ArtComponent;
 use crate::tables::components::chat::ChatComponent;
 use crate::tables::components::config_status::ConfigStatusComponent;
+use crate::tables::components::error::ErrorComponent;
 use crate::tables::components::status::StatusComponent;
 use crate::tables::components::{Paddings, TableComponent};
 use crate::tables::fluent_lang::FluentLangTable;
@@ -11,7 +12,6 @@ use termimad::MadSkin;
 use termimad::crossterm::style::Color;
 use termimad::crossterm::terminal;
 use terminal_colorsaurus::{QueryOptions, color_palette};
-use crate::tables::components::error::ErrorComponent;
 
 /// The function was created for building an output for showing answer from a provider's API.
 /// The function builds a table from components, and after it renders the table.
@@ -30,29 +30,19 @@ pub fn print_status(
     table_paddings: Paddings,
 ) -> Result<(), AppErrors> {
     let (width, _) = terminal::size()?;
-    let palette = color_palette(QueryOptions::default())?;
-    let fg = Color::Rgb {
-        r: 113,
-        g: 163,
-        b: 255,
-    };
-    let bg = Color::Rgb {
-        r: palette.background.r as u8,
-        g: palette.background.g as u8,
-        b: palette.background.b as u8,
-    };
+    let (skin, fg, bg) = get_skin()?;
 
     FluentLangTable::default()
         .add_component(Box::new(
-            ArtComponent::new(width, table_paddings.clone()).into_component()?,
+            ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
             StatusComponent::new(width, provider.clone(), table_paddings.clone())
-                .into_component()?,
+                .into_component(None)?,
         ))
         .add_component(Box::new(
-            ChatComponent::new(width, provider, sentence, answer, table_paddings)
-                .into_component()?,
+            ChatComponent::new(width, provider, sentence, answer, table_paddings)?
+                .into_component(Some(skin.clone()))?,
         ))
         .render(fg, bg);
 
@@ -72,25 +62,14 @@ pub fn print_config_data(
     table_paddings: Paddings,
 ) -> Result<(), AppErrors> {
     let (width, _) = terminal::size()?;
-
-    let palette = color_palette(QueryOptions::default())?;
-    let fg = Color::Rgb {
-        r: 113,
-        g: 163,
-        b: 255,
-    };
-    let bg = Color::Rgb {
-        r: palette.background.r as u8,
-        g: palette.background.g as u8,
-        b: palette.background.b as u8,
-    };
+    let (_, fg, bg) = get_skin()?;
 
     FluentLangTable::default()
         .add_component(Box::new(
-            ArtComponent::new(width, table_paddings.clone()).into_component()?,
+            ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
-            ConfigStatusComponent::new(width, output_data, table_paddings).into_component()?,
+            ConfigStatusComponent::new(width, output_data, table_paddings).into_component(None)?,
         ))
         .render(fg, bg);
 
@@ -105,29 +84,16 @@ pub fn print_config_data(
 ///
 /// * `error_text` - a text of the error.
 /// * `table_paddings` - a padding for a table.
-pub fn print_error(
-    error_text: String,
-    table_paddings: Paddings
-) -> Result<(), AppErrors> {
+pub fn print_error(error_text: String, table_paddings: Paddings) -> Result<(), AppErrors> {
     let (width, _) = terminal::size()?;
-    let palette = color_palette(QueryOptions::default())?;
-    let fg = Color::Rgb {
-        r: 113,
-        g: 163,
-        b: 255,
-    };
-    let bg = Color::Rgb {
-        r: palette.background.r as u8,
-        g: palette.background.g as u8,
-        b: palette.background.b as u8,
-    };
+    let (_, fg, bg) = get_skin()?;
 
     FluentLangTable::default()
         .add_component(Box::new(
-            ArtComponent::new(width, table_paddings.clone()).into_component()?,
+            ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
-            ErrorComponent::new(width, error_text, table_paddings).into_component()?
+            ErrorComponent::new(width, error_text, table_paddings).into_component(Some(MadSkin::no_style()))?,
         ))
         .render(fg, bg);
 
@@ -135,7 +101,13 @@ pub fn print_error(
 }
 
 /// The function returns basic MadSkin for using in console output.
-pub fn get_skin() -> Result<MadSkin, AppErrors> {
+///
+/// This function returns:
+///
+/// * `MadSkin` - налаштований скін для рендерингу форматованого тексту за допомогою `termimad`.
+/// * `Color` - основний колір переднього плану (foreground RGB).
+/// * `Color` - колір фону (background RGB), отриманий із системної палітри.
+pub fn get_skin() -> Result<(MadSkin, Color, Color), AppErrors> {
     let palette = color_palette(QueryOptions::default())?;
     let fg = Color::Rgb {
         r: 113,
@@ -151,5 +123,5 @@ pub fn get_skin() -> Result<MadSkin, AppErrors> {
     skin.set_bg(bg);
     skin.set_fg(fg);
 
-    Ok(skin)
+    Ok((skin, fg, bg))
 }

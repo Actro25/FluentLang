@@ -1,4 +1,5 @@
-﻿use fluentlang_utils::error::AppErrors;
+﻿use termimad::MadSkin;
+use fluentlang_utils::error::AppErrors;
 
 pub mod art;
 pub mod chat;
@@ -8,7 +9,11 @@ pub mod error;
 
 pub trait TableComponent {
     /// The function is supposed to create component and returns `Self` for a chain call.
-    fn into_component(self) -> Result<Self, AppErrors>
+    /// 
+    /// # Argument
+    /// 
+    /// * `mad_skin` - a skin for drawing and formatting text for terminal output.
+    fn into_component(self, mad_skin: Option<MadSkin>) -> Result<Self, AppErrors>
     where
         Self: Sized;
 
