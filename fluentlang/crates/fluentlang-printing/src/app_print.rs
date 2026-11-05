@@ -37,7 +37,7 @@ pub fn print_status(
             ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
-            StatusComponent::new(width, provider.clone(), table_paddings.clone())
+            StatusComponent::new(width, provider.clone(), table_paddings.clone())?
                 .into_component(None)?,
         ))
         .add_component(Box::new(
