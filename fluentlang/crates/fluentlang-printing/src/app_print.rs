@@ -93,7 +93,7 @@ pub fn print_error(error_text: String, table_paddings: Paddings) -> Result<(), A
             ArtComponent::new(width, table_paddings.clone())?.into_component(None)?,
         ))
         .add_component(Box::new(
-            ErrorComponent::new(width, error_text, table_paddings).into_component(Some(MadSkin::no_style()))?,
+            ErrorComponent::new(width, error_text, table_paddings)?.into_component(Some(MadSkin::no_style()))?,
         ))
         .render(fg, bg);
 
