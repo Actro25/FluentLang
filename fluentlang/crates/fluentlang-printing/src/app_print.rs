@@ -12,6 +12,7 @@ use termimad::MadSkin;
 use termimad::crossterm::style::Color;
 use termimad::crossterm::terminal;
 use terminal_colorsaurus::{QueryOptions, color_palette};
+use crate::tables::components::error::ErrorComponent;
 
 /// Prints provider's API errors to the terminal.
 ///
@@ -94,6 +95,43 @@ pub fn print_error(error_text: String, table_paddings: Paddings) -> Result<(), A
         ))
         .add_component(Box::new(
             ErrorComponent::new(width, error_text, table_paddings)?.into_component(Some(MadSkin::no_style()))?,
+        ))
+        .render(fg, bg);
+
+    Ok(())
+}
+
+/// The function was created for building an output for showing error answer from a provider's API.
+/// The function builds a table from components, and after it renders the table.
+/// The table shows art component and error component.
+///
+/// # Arguments
+///
+/// * `error_text` - a text of the error.
+/// * `table_paddings` - a padding for a table.
+pub fn print_error(
+    error_text: String,
+    table_paddings: Paddings
+) -> Result<(), AppErrors> {
+    let (width, _) = terminal::size()?;
+    let palette = color_palette(QueryOptions::default())?;
+    let fg = Color::Rgb {
+        r: 113,
+        g: 163,
+        b: 255,
+    };
+    let bg = Color::Rgb {
+        r: palette.background.r as u8,
+        g: palette.background.g as u8,
+        b: palette.background.b as u8,
+    };
+
+    FluentLangTable::default()
+        .add_component(Box::new(
+            ArtComponent::new(width, table_paddings.clone()).into_component()?,
+        ))
+        .add_component(Box::new(
+            ErrorComponent::new(width, error_text, table_paddings).into_component()?
         ))
         .render(fg, bg);
 

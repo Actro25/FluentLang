@@ -1,4 +1,4 @@
-﻿use std::any::type_name_of_val;
+use std::any::type_name_of_val;
 use crate::tables::components::{
     NecessaryDataTable,
     Paddings,
