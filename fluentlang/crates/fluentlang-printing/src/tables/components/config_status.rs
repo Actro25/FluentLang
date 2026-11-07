@@ -112,7 +112,7 @@ impl ConfigStatusComponent {
 }
 
 impl TableComponent for ConfigStatusComponent {
-    fn into_component(mut self, _mad_skin: Option<MadSkin>) -> Result<Self, AppErrors>
+    fn into_component(mut self, _: Option<MadSkin>) -> Result<Self, AppErrors>
     where
         Self: Sized,
     {

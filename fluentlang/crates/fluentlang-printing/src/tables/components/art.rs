@@ -72,7 +72,7 @@ impl ArtComponent {
 }
 
 impl TableComponent for ArtComponent {
-    fn into_component(mut self, _mad_skin: Option<MadSkin>) -> Result<Self, AppErrors> {
+    fn into_component(mut self, _: Option<MadSkin>) -> Result<Self, AppErrors> {
         let current_art = self.get_art();
 
         let art_width = current_art.iter().map(|l| l.chars().count()).max().unwrap();
