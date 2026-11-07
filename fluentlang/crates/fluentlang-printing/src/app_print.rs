@@ -13,9 +13,9 @@ use termimad::crossterm::style::Color;
 use termimad::crossterm::terminal;
 use terminal_colorsaurus::{QueryOptions, color_palette};
 
-/// The function was created for building an output for showing answer from a provider's API.
-/// The function builds a table from components, and after it renders the table.
-/// The table shows art component, status component, and chat component.
+/// Prints provider's API errors to the terminal.
+///
+/// The function builds and renders the "art" table from components and displays error in there.
 ///
 /// # Arguments
 ///
@@ -49,9 +49,9 @@ pub fn print_status(
     Ok(())
 }
 
-/// The function was created for building an output for showing the config data.
-/// The function builds a table from components, and after it renders the table.
-/// The table shows art component, and config status component.
+/// Prints config's data to the terminal.
+///
+/// The function builds and renders the "art" component, and the "config_status" component.
 ///
 /// # Arguments
 ///
@@ -76,9 +76,9 @@ pub fn print_config_data(
     Ok(())
 }
 
-/// The function was created for building an output for showing error answer from a provider's API.
-/// The function builds a table from components, and after it renders the table.
-/// The table shows art component and error component.
+/// Prints errors to the terminal
+///
+/// The function builds and renders the "art" component, and the "error" component.
 ///
 /// # Arguments
 ///

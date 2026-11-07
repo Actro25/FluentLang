@@ -118,7 +118,7 @@ impl TableComponent for StatusComponent {
 
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use rstest::rstest;
 

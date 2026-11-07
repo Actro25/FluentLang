@@ -161,7 +161,7 @@ impl TableComponent for ChatComponent {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use rstest::rstest;
 
