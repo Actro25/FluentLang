@@ -19,3 +19,4 @@ tokio = { version = "1.53.1", features = ["rt", "rt-multi-thread", "macros"] }
 terminal-colorsaurus = "1.0.3"
 termimad = "0.35.5"
 strip-ansi-escapes = "0.2"
+rstest = "0.28.0"

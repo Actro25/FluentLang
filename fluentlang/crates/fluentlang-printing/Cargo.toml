@@ -9,3 +9,4 @@ fluentlang-utils = { path = "../fluentlang-utils" }
 terminal-colorsaurus = { workspace = true }
 termimad = { workspace = true }
 strip-ansi-escapes = { workspace = true }
+rstest = { workspace = true }
