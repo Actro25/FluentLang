@@ -47,7 +47,15 @@ impl Table for FluentLangTable {
 impl FluentLangTable {
     fn render_table(&self, res: Vec<String>, fg: Color, bg: Color) {
         for line in res {
-            println!("{}", line.as_str().with(fg).on(bg));
+            if let Some(content) = line.strip_suffix('│') {
+                println!(
+                    "{}{}",
+                    content.with(fg).on(bg),
+                    "│".with(fg).on(bg)
+                );
+            } else {
+                println!("{}", line.with(fg).on(bg));
+            }
         }
     }
 }
