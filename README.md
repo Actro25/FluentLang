@@ -1,21 +1,17 @@
 # FluentLang
 
-<div style="justify-self: center; justify-items: center">
+<div align="center">
   <img src="./assets/fluentlang-ascii-logo.svg" width="350" alt="FluentLang Logo">
-
-  <h1>FluentLang</h1>
-  <p>AI-powered sentence analysis from your terminal.</p>
-    <p>
-  <img src="https://img.shields.io/badge/Rust-1.98.1-orange" alt="Rust Version">
-  <img src="https://img.shields.io/badge/clap-4.6.6-blueviolet" alt="Clap Version">
-  <img src="https://img.shields.io/badge/termimad-0.35.5-teal" alt="Termimad Version">
-  <img src="https://img.shields.io/badge/rstest-0.28.0-brightgreen" alt="Rstest Version">
-  <img src="https://img.shields.io/badge/reqwest-0.13.5-blue" alt="Reqwest Version">
-    </p>
-
+  <h3>AI-powered sentence analysis from your terminal.</h3>
+  <p>
+    <img src="https://img.shields.io/badge/Rust-1.98.1-orange" alt="Rust Version">
+    <img src="https://img.shields.io/badge/clap-4.6.6-blueviolet" alt="Clap Version">
+    <img src="https://img.shields.io/badge/termimad-0.35.5-teal" alt="Termimad Version">
+    <img src="https://img.shields.io/badge/rstest-0.28.0-brightgreen" alt="Rstest Version">
+    <img src="https://img.shields.io/badge/reqwest-0.13.5-blue" alt="Reqwest Version">
+  </p>
 </div>
 
----
 
 ## Overview
 
@@ -24,7 +20,6 @@ to see explanation for AI provide about your sentence in a convenient way.
 
 ![Sentence Preview Demo](assets/sentence-preview.gif)
 
----
 
 ## Tech Stack
 
@@ -36,7 +31,6 @@ to see explanation for AI provide about your sentence in a convenient way.
 | **[rstest](https://crates.io/crates/rstest)**     | `0.28.0` | Rust fixture based test framework. It use procedural macro to implement fixtures and table based tests. |
 | **[reqwest](https://crates.io/crates/reqwest)**   | `0.13.5` | higher level HTTP client library                                                                        |
 
----
 
 ## Installation
 
@@ -45,13 +39,11 @@ to see explanation for AI provide about your sentence in a convenient way.
 3. Extract the archive to a convenient location.
 4. Run this command in the PowerShell `.\install.ps1` to install for Windows and `./install.sh` for Linux / macOS.
 
----
 
 ## Uninstallation
 
 Just run in the PowerShell `.\uninstall.ps1` to uninstall for Windows and `./uninstall.sh` for Linux / macOS.
 
----
 
 ## Usage
 
